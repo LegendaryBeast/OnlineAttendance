@@ -34,6 +34,13 @@ function createClassRoutes(classController, auth) {
         (req, res) => classController.updateValidationCode(req, res)
     );
 
+    // Update location (teacher only)
+    router.patch('/:classId/location',
+        authenticateToken,
+        requireRole('teacher'),
+        (req, res) => classController.updateLocation(req, res)
+    );
+
     // Toggle class active status (teacher only)
     router.patch('/:classId/toggle',
         authenticateToken,

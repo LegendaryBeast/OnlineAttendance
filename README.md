@@ -44,24 +44,20 @@ DigitalAttendence/
 
 ### Running the Application
 
-**Option 1: One-Command Start**
-```bash
-./start.sh
-```
 
 **Option 2: Manual Start**
 
 Terminal 1 - Backend:
 ```bash
 cd backend
-npm install  # First time only
+npm install  
 npm run dev
 ```
 
 Terminal 2 - Frontend:
 ```bash
 cd frontend
-npm install  # First time only
+npm install  
 npm start
 ```
 
@@ -129,24 +125,9 @@ Test the application manually:
 - View attendance records
 - Export to Excel
 
-## 🆘 Troubleshooting
-
-**Backend won't start:**
-- Check MongoDB connection
-- Verify .env file exists
-- Ensure port 3000 is available
-
-**Frontend can't connect:**
-- Ensure backend is running on port 3000
-- Check browser console for errors
-
-## 📚 Documentation
-
-For detailed architecture and SOLID principles explanation, see the walkthrough documentation in the artifacts.
-
 ## 🎓 Tech Stack
 
-- **Backend**: Node.js, Express, MongoDB, Mongoose
+- **Backend**: Node.js, Express, MongoDB
 - **Frontend**: Vanilla JS, HTML5, CSS3
 - **Auth**: JWT
 - **Storage**: Cloudinary (images)

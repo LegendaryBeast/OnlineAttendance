@@ -23,6 +23,11 @@ const classSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    course: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course',
+        default: null  // null means "Individual Class"
+    },
     teacherLocation: {
         latitude: {
             type: Number,

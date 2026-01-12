@@ -4,12 +4,13 @@
  * Single Responsibility: Attendance operations
  */
 class AttendanceService {
-    constructor(attendanceRepository, classRepository, userRepository, locationService, imageService) {
+    constructor(attendanceRepository, classRepository, userRepository, locationService, imageService, cumulativeAttendanceService = null) {
         this.attendanceRepository = attendanceRepository;
         this.classRepository = classRepository;
         this.userRepository = userRepository;
         this.locationService = locationService;
         this.imageService = imageService;
+        this.cumulativeAttendanceService = cumulativeAttendanceService; // Optional for cumulative attendance
     }
 
     /**
@@ -84,6 +85,23 @@ class AttendanceService {
         };
 
         const attendance = await this.attendanceRepository.create(attendanceData);
+
+        // Update cumulative attendance if class is linked to a course
+        if (classData.course && this.cumulativeAttendanceService) {
+            try {
+                await this.cumulativeAttendanceService.updateCumulativeAttendance(
+                    classData.course,
+                    studentId,
+                    {
+                        studentName: student.name,
+                        registrationNumber: student.registrationNumber
+                    }
+                );
+            } catch (error) {
+                // Log error but don't fail the attendance submission
+                console.error('Error updating cumulative attendance:', error);
+            }
+        }
 
         return {
             className: classData.name,

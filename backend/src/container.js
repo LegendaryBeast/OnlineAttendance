@@ -2,6 +2,8 @@
 const UserRepository = require('./repositories/UserRepository');
 const ClassRepository = require('./repositories/ClassRepository');
 const AttendanceRepository = require('./repositories/AttendanceRepository');
+const CourseRepository = require('./repositories/CourseRepository');
+const CumulativeAttendanceRepository = require('./repositories/CumulativeAttendanceRepository');
 
 // Import services
 const AuthService = require('./services/AuthService');
@@ -9,11 +11,14 @@ const ClassService = require('./services/ClassService');
 const AttendanceService = require('./services/AttendanceService');
 const LocationService = require('./services/LocationService');
 const ImageService = require('./services/ImageService');
+const CourseService = require('./services/CourseService');
+const CumulativeAttendanceService = require('./services/CumulativeAttendanceService');
 
 // Import controllers
 const AuthController = require('./controllers/AuthController');
 const ClassController = require('./controllers/ClassController');
 const AttendanceController = require('./controllers/AttendanceController');
+const CourseController = require('./controllers/CourseController');
 
 /**
  * Dependency Injection Container
@@ -38,6 +43,8 @@ class Container {
         this.repositories.userRepository = new UserRepository();
         this.repositories.classRepository = new ClassRepository();
         this.repositories.attendanceRepository = new AttendanceRepository();
+        this.repositories.courseRepository = new CourseRepository();
+        this.repositories.cumulativeAttendanceRepository = new CumulativeAttendanceRepository();
     }
 
     /**
@@ -59,12 +66,26 @@ class Container {
             this.repositories.userRepository
         );
 
+        // Initialize cumulative attendance service first
+        this.services.cumulativeAttendanceService = new CumulativeAttendanceService(
+            this.repositories.cumulativeAttendanceRepository,
+            this.repositories.courseRepository
+        );
+
+        // Initialize course service
+        this.services.courseService = new CourseService(
+            this.repositories.courseRepository,
+            this.repositories.cumulativeAttendanceRepository,
+            this.repositories.userRepository
+        );
+
         this.services.attendanceService = new AttendanceService(
             this.repositories.attendanceRepository,
             this.repositories.classRepository,
             this.repositories.userRepository,
             this.services.locationService,
-            this.services.imageService
+            this.services.imageService,
+            this.services.cumulativeAttendanceService  // Pass cumulative attendance service
         );
     }
 
@@ -82,6 +103,11 @@ class Container {
 
         this.controllers.attendanceController = new AttendanceController(
             this.services.attendanceService
+        );
+
+        this.controllers.courseController = new CourseController(
+            this.services.courseService,
+            this.services.cumulativeAttendanceService
         );
     }
 

@@ -87,6 +87,28 @@ class ClassController {
     }
 
     /**
+     * Update class location
+     */
+    async updateLocation(req, res) {
+        try {
+            const updatedClass = await this.classService.updateLocation(
+                req.params.classId,
+                req.body.location,
+                req.user.userId
+            );
+
+            res.json({
+                message: 'Class location updated successfully',
+                class: updatedClass
+            });
+        } catch (error) {
+            console.error('Update location error:', error);
+            res.status(error.message.includes('not found') ? 404 : 403)
+                .json({ error: error.message });
+        }
+    }
+
+    /**
      * Toggle class active status
      */
     async toggleClassStatus(req, res) {

@@ -7,6 +7,7 @@ const auth = require('./middleware/auth');
 const createAuthRoutes = require('./routes/auth.routes');
 const createClassRoutes = require('./routes/class.routes');
 const createAttendanceRoutes = require('./routes/attendance.routes');
+const createCourseRoutes = require('./routes/course.routes');
 
 /**
  * Express App Configuration
@@ -35,11 +36,13 @@ function createApp() {
     const authController = container.getController('authController');
     const classController = container.getController('classController');
     const attendanceController = container.getController('attendanceController');
+    const courseController = container.getController('courseController');
 
     // Setup routes
     app.use('/api/auth', createAuthRoutes(authController));
     app.use('/api/classes', createClassRoutes(classController, auth));
     app.use('/api/attendance', createAttendanceRoutes(attendanceController, auth));
+    app.use('/api/courses', createCourseRoutes(courseController, auth));
 
     // Health check endpoint
     app.get('/health', (req, res) => {

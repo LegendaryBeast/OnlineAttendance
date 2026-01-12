@@ -12,12 +12,12 @@ class ClassService {
 
     /**
      * Create a new class
-     * @param {Object} classData - { name, type, validationCode, location }
+     * @param {Object} classData - { name, type, validationCode, location, courseId }
      * @param {string} teacherId 
      * @returns {Promise<Object>}
      */
     async createClass(classData, teacherId) {
-        const { name, type, validationCode, location } = classData;
+        const { name, type, validationCode, location, courseId } = classData;
 
         // Validate required fields
         if (!name || !type || !validationCode) {
@@ -54,7 +54,8 @@ class ClassService {
             teacherLocation: type === 'offline' ? {
                 latitude: location.latitude,
                 longitude: location.longitude
-            } : undefined
+            } : undefined,
+            course: courseId || null // Add courseId (null if "Individual Class")
         };
 
         // Save class
@@ -113,6 +114,38 @@ class ClassService {
         await this.classRepository.updateValidationCode(classId, validationCode);
 
         return { validationCode };
+    }
+
+    /**
+     * Update class location
+     * @param {string} classId 
+     * @param {Object} location - { latitude, longitude }
+     * @param {string} teacherId 
+     * @returns {Promise<Object>}
+     */
+    async updateLocation(classId, location, teacherId) {
+        if (!location || !location.latitude || !location.longitude) {
+            throw new Error('Location (latitude and longitude) is required');
+        }
+
+        const classData = await this.getClassById(classId);
+
+        // Verify ownership
+        this.verifyTeacherOwnership(classData, teacherId);
+
+        // Check if class type allows location update (only offline)
+        if (classData.type !== 'offline') {
+            throw new Error('Can only update location for offline classes');
+        }
+
+        const updatedClass = await this.classRepository.update(classId, {
+            teacherLocation: {
+                latitude: location.latitude,
+                longitude: location.longitude
+            }
+        });
+
+        return updatedClass;
     }
 
     /**
