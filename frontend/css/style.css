@@ -225,6 +225,10 @@ a:hover {
   transform: none !important;
 }
 
+/* Google Sign-In Button */
+
+
+
 /* Form Elements */
 .form-group {
   margin-bottom: var(--spacing-md);

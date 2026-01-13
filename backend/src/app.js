@@ -24,6 +24,9 @@ function createApp() {
     app.use(express.json({ limit: '10mb' })); // Increased limit for base64 images
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+
+
+
     // Logging middleware (development)
     if (process.env.NODE_ENV === 'development') {
         app.use((req, res, next) => {

@@ -25,6 +25,22 @@ class Environment {
         return process.env.CLOUDINARY_API_SECRET;
     }
 
+    static get GOOGLE_CLIENT_ID() {
+        return process.env.GOOGLE_CLIENT_ID;
+    }
+
+    static get GOOGLE_CLIENT_SECRET() {
+        return process.env.GOOGLE_CLIENT_SECRET;
+    }
+
+    static get GOOGLE_CALLBACK_URL() {
+        return process.env.GOOGLE_CALLBACK_URL;
+    }
+
+    static get SESSION_SECRET() {
+        return process.env.SESSION_SECRET || 'your-session-secret-change-in-production';
+    }
+
     static get NODE_ENV() {
         return process.env.NODE_ENV || 'development';
     }

@@ -45,6 +45,32 @@ class AuthController {
                 .json({ error: error.message });
         }
     }
+
+    /**
+     * Handle Google OAuth callback
+     */
+    /**
+     * Google Login with ID Token
+     */
+    async googleLogin(req, res) {
+        try {
+            const { token } = req.body;
+            if (!token) {
+                return res.status(400).json({ error: 'Token is required' });
+            }
+
+            const result = await this.authService.googleLogin(token);
+
+            res.json({
+                message: 'Google login successful',
+                token: result.token,
+                user: result.user
+            });
+        } catch (error) {
+            console.error('Google login error:', error);
+            res.status(401).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = AuthController;

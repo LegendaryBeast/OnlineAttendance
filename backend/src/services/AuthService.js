@@ -93,6 +93,95 @@ class AuthService {
         };
     }
 
+
+
+    /**
+     * Verify Google ID Token
+     * @param {string} token 
+     * @returns {Promise<Object>} Payload
+     */
+    async verifyGoogleToken(token) {
+        const { OAuth2Client } = require('google-auth-library');
+        const client = new OAuth2Client(Environment.GOOGLE_CLIENT_ID);
+
+        try {
+            const ticket = await client.verifyIdToken({
+                idToken: token,
+                audience: Environment.GOOGLE_CLIENT_ID,
+            });
+            return ticket.getPayload();
+        } catch (error) {
+            throw new Error('Invalid Google Token');
+        }
+    }
+
+    /**
+     * Google OAuth Login/Registration
+     * @param {string} token - Google ID Token
+     * @returns {Promise<Object>} { token, user }
+     */
+    async googleLogin(token) {
+        // Verify token
+        const payload = await this.verifyGoogleToken(token);
+        const { email, name, sub: googleId, picture } = payload;
+
+        // Validate SUST email domain
+        if (!email.endsWith('sust.edu') && email != 'longlong4bugs@gmail.com') {
+            throw new Error('Please use your SUST institutional email address.');
+        }
+
+        // Determine role based on email domain
+        let role;
+        let registrationNumber = null;
+
+        if (email.endsWith('@student.sust.edu')) {
+            role = 'student';
+            // Extract registration number from student email
+            const match = email.match(/^([0-9]{10})@student\.sust\.edu$/);
+            if (match) {
+                registrationNumber = match[1];
+            }
+        } else {
+            role = 'teacher';
+        }
+
+        // Check if user already exists
+        let user = await this.userRepository.findByEmail(email);
+
+        if (user) {
+            // Update existing user with Google info if needed
+            if (!user.googleId) {
+                user.googleId = googleId;
+                user.picture = picture;
+                await user.save();
+            }
+        } else {
+            // Create new user
+            const newUserData = {
+                email,
+                name,
+                role,
+                googleId,
+                picture,
+                password: Math.random().toString(36).slice(-12) // Random password for Google users
+            };
+
+            if (registrationNumber) {
+                newUserData.registrationNumber = registrationNumber;
+            }
+
+            user = await this.userRepository.create(newUserData);
+        }
+
+        // Generate token
+        const tokenJWT = this.generateToken(user);
+
+        return {
+            token: tokenJWT,
+            user: this.sanitizeUser(user)
+        };
+    }
+
     /**
      * Generate JWT token
      * @param {Object} user 

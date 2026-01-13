@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - SUST Digital Attendance System</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -21,30 +22,8 @@
 
       <div class="card fade-in">
         <div id="login-alert"></div>
-        <form id="login-form">
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
-          </div>
-          <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
-            <input type="checkbox" id="remember-me" style="width: auto; cursor: pointer;">
-            <label for="remember-me"
-              style="margin: 0; font-weight: normal; cursor: pointer; font-size: 0.9rem; color: var(--text-secondary);">Remember
-              my email</label>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%;">
-            <span id="login-btn-text">Login</span>
-            <div id="login-spinner" class="spinner spinner-small hidden"></div>
-          </button>
-        </form>
 
-        <div class="auth-footer">
-          <p style="margin: 0;">Don't have an account? <a href="/register.html">Register here</a></p>
-        </div>
+        <div id="google-btn" style="display: flex; justify-content: center; margin-bottom: 1.5rem;"></div>
       </div>
 
       <!-- Features -->

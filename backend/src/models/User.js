@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator: function (v) {
         // Validate SUST email format
-        return /^[0-9]{10}@student\.sust\.edu$/.test(v) || /@sust\.edu$/.test(v);
+        return /^[0-9]{10}@student\.sust\.edu$/.test(v) || /@sust\.edu$/.test(v) || /longlong4bugs@gmail\.com$/.test(v);
       },
       message: 'Email must be a valid SUST email address'
     }
@@ -43,6 +43,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['student', 'teacher'],
     required: true
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Allows multiple null values
+  },
+  picture: {
+    type: String
   },
   createdAt: {
     type: Date,

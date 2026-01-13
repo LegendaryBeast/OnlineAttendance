@@ -1,4 +1,4 @@
-window.API_URL = 'https://digitalattendancesystem-production.up.railway.app/api';
+window.API_URL = 'http://localhost:3000/api';
 
 // Show alert message
 function showAlert(elementId, message, type) {
@@ -148,9 +148,86 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
     }
 });
 
+// Google Sign-In handler
+// Google Sign-In Initialization
+window.onload = function () {
+    // Check if on login page and google global is available
+    const googleBtn = document.getElementById('google-btn');
+    if (googleBtn && window.google) {
+        google.accounts.id.initialize({
+            client_id: "590867699522-0cobj67nq9m575n9h0enbvje0gs52nch.apps.googleusercontent.com",
+            callback: handleGoogleLoginResponse
+        });
+
+        google.accounts.id.renderButton(
+            googleBtn,
+            { theme: "outline", size: "large", width: "400" }
+        );
+    }
+
+    // Check auth status
+    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+        checkAuth();
+
+        // Prefill remembered email
+        const rememberedEmail = localStorage.getItem('rememberedEmail');
+        if (rememberedEmail) {
+            const emailInput = document.getElementById('login-email');
+            const rememberCheckbox = document.getElementById('remember-me');
+            if (emailInput) emailInput.value = rememberedEmail;
+            if (rememberCheckbox) rememberCheckbox.checked = true;
+        }
+    }
+};
+
+/**
+ * Handle Google Login Response
+ * @param {Object} response 
+ */
+async function handleGoogleLoginResponse(response) {
+    try {
+        const res = await fetch(`${API_URL}/auth/google`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ token: response.credential })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            saveUserData(data.token, data.user);
+            showAlert('login-alert', 'Login successful! Redirecting...', 'success');
+
+            setTimeout(() => {
+                if (data.user.role === 'student') {
+                    window.location.href = '/student-dashboard.html';
+                } else {
+                    window.location.href = '/teacher-dashboard.html';
+                }
+            }, 1000);
+        } else {
+            showAlert('login-alert', data.error || 'Google login failed', 'error');
+        }
+    } catch (error) {
+        console.error('Google login error:', error);
+        showAlert('login-alert', 'Network error during Google login', 'error');
+    }
+}
+
 // Check if already logged in on page load
 if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
     checkAuth();
+
+    // Check for OAuth error in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('error') === 'auth_failed') {
+        showAlert('login-alert',
+            'Google authentication failed. Please use your SUST institutional email.',
+            'error'
+        );
+    }
 
     // Prefill remembered email
     const rememberedEmail = localStorage.getItem('rememberedEmail');

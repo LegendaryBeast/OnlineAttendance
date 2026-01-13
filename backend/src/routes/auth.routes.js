@@ -13,6 +13,10 @@ function createAuthRoutes(authController) {
     // Login
     router.post('/login', (req, res) => authController.login(req, res));
 
+    // Google OAuth routes
+    // Google OAuth routes
+    router.post('/google', (req, res) => authController.googleLogin(req, res));
+
     return router;
 }
 
