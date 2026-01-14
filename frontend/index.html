@@ -10,31 +10,48 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/landing.css">
 </head>
 
 <body>
-  <div class="auth-container">
-    <div class="auth-card">
-      <div class="auth-header">
-        <div class="logo-icon">🎓</div>
-        <h1>SUST Digital Attendance</h1>
-      </div>
+  <div class="hero-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="hero-icon">🎓</div>
+      <h1 class="hero-title">SUST Digital Attendance</h1>
+      <p class="hero-subtitle">Effortless Attendance Tracking for Shahjalal University of Science & Technology.<br>Save
+        time, prevent proxies, and manage records seamlessly.</p>
+    </div>
 
-      <div class="card fade-in">
+    <!-- Login Card -->
+    <div class="login-section">
+      <div class="login-card fade-in">
         <div id="login-alert"></div>
-
-        <div id="google-btn" style="display: flex; justify-content: center; margin-bottom: 1.5rem;"></div>
+        <div id="google-btn" style="display: flex; justify-content: center;"></div>
       </div>
+    </div>
 
-      <!-- Features -->
-      <div class="mt-lg text-center fade-in" style="opacity: 0.8;">
-        <div class="flex-center gap-md" style="flex-wrap: wrap; font-size: 0.9rem; color: var(--text-muted);">
-          <span>🔐 Secure Codes</span>
-          <span>•</span>
-          <span>📊 Excel Export</span>
-          <span>•</span>
-          <span>📱 Easy Attendance</span>
-        </div>
+    <!-- Feature Badges -->
+    <div class="badges-section">
+      <div class="feature-badge">
+        <span class="badge-icon">📱</span>
+        <span class="badge-text">Easy Attendance</span>
+      </div>
+      <div class="feature-badge">
+        <span class="badge-icon">🚀</span>
+        <span class="badge-text">Time-Saving Process</span>
+      </div>
+      <div class="feature-badge">
+        <span class="badge-icon">🛡️</span>
+        <span class="badge-text">Anti-Proxy System</span>
+      </div>
+      <div class="feature-badge">
+        <span class="badge-icon">📊</span>
+        <span class="badge-text">Easy Export</span>
+      </div>
+      <div class="feature-badge">
+        <span class="badge-icon">🔒</span>
+        <span class="badge-text">Fully Secure System</span>
       </div>
     </div>
   </div>
