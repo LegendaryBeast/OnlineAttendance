@@ -89,6 +89,30 @@ class AttendanceController {
                 .json({ error: error.message });
         }
     }
+
+    /**
+     * Manually add attendance by registration number (teacher only)
+     */
+    async manuallyAddAttendance(req, res) {
+        try {
+            const { classId, registrationNumber } = req.body;
+
+            const result = await this.attendanceService.manuallyAddAttendance(
+                classId,
+                registrationNumber,
+                req.user.userId
+            );
+
+            res.status(201).json({
+                message: 'Attendance added successfully',
+                attendance: result
+            });
+        } catch (error) {
+            console.error('Manual attendance error:', error);
+            res.status(400).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = AttendanceController;
+

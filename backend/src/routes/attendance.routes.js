@@ -36,7 +36,15 @@ function createAttendanceRoutes(attendanceController, auth) {
         (req, res) => attendanceController.getStudentAttendance(req, res)
     );
 
+    // Manually add attendance by registration number (teacher only)
+    router.post('/manual',
+        authenticateToken,
+        requireRole('teacher'),
+        (req, res) => attendanceController.manuallyAddAttendance(req, res)
+    );
+
     return router;
 }
 
 module.exports = createAttendanceRoutes;
+

@@ -232,6 +232,90 @@ class AttendanceService {
             className: classData.name
         };
     }
+
+    /**
+     * Manually add attendance by registration number (teacher only)
+     * @param {string} classId 
+     * @param {string} registrationNumber 
+     * @param {string} teacherId 
+     * @returns {Promise<Object>}
+     */
+    async manuallyAddAttendance(classId, registrationNumber, teacherId) {
+        // Validate required fields
+        if (!classId || !registrationNumber) {
+            throw new Error('Class ID and registration number are required');
+        }
+
+        // Validate registration number format (10 digits)
+        if (!/^[0-9]{10}$/.test(registrationNumber)) {
+            throw new Error('Invalid registration number format. Must be 10 digits.');
+        }
+
+        // Get class details
+        const classData = await this.classRepository.findById(classId);
+        if (!classData) {
+            throw new Error('Class not found');
+        }
+
+        // Verify teacher owns this class
+        if (classData.teacher.toString() !== teacherId) {
+            throw new Error('You can only add attendance for your own classes');
+        }
+
+        // Find student by registration number
+        const student = await this.userRepository.findByRegistrationNumber(registrationNumber);
+        if (!student) {
+            throw new Error(`No student found with registration number: ${registrationNumber}`);
+        }
+
+        // Verify student role
+        if (student.role !== 'student') {
+            throw new Error('The provided registration number does not belong to a student');
+        }
+
+        // Check for duplicate attendance
+        const isDuplicate = await this.attendanceRepository.isDuplicate(classId, student._id);
+        if (isDuplicate) {
+            throw new Error(`Student ${student.name} (${registrationNumber}) has already submitted attendance for this class`);
+        }
+
+        // Create attendance record (manually added by teacher)
+        const attendanceData = {
+            class: classId,
+            student: student._id,
+            studentName: student.name,
+            registrationNumber: student.registrationNumber,
+            validationCodeUsed: 'MANUAL_ENTRY', // Special marker for manual entries
+            distance: null,
+            imageUrl: null
+        };
+
+        const attendance = await this.attendanceRepository.create(attendanceData);
+
+        // Update cumulative attendance if class is linked to a course
+        if (classData.course && this.cumulativeAttendanceService) {
+            try {
+                await this.cumulativeAttendanceService.updateCumulativeAttendance(
+                    classData.course,
+                    student._id,
+                    {
+                        studentName: student.name,
+                        registrationNumber: student.registrationNumber
+                    }
+                );
+            } catch (error) {
+                // Log error but don't fail the attendance submission
+                console.error('Error updating cumulative attendance:', error);
+            }
+        }
+
+        return {
+            studentName: student.name,
+            registrationNumber: student.registrationNumber,
+            className: classData.name,
+            timestamp: attendance.timestamp
+        };
+    }
 }
 
 module.exports = AttendanceService;

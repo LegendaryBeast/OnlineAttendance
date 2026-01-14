@@ -62,6 +62,16 @@ class UserRepository {
         const user = await this.findByEmail(email);
         return !!user;
     }
+
+    /**
+     * Find user by registration number
+     * @param {string} registrationNumber 
+     * @returns {Promise<User|null>}
+     */
+    async findByRegistrationNumber(registrationNumber) {
+        return await User.findOne({ registrationNumber });
+    }
 }
 
 module.exports = UserRepository;
+

@@ -112,7 +112,7 @@ class LocationService {
      * @param {number} maxDistance - Maximum allowed distance in meters
      * @returns {Object} { isWithinRange: boolean, distance: number }
      */
-    validateLocation(teacherLocation, studentLocation, maxDistance = 50) {
+    validateLocation(teacherLocation, studentLocation, maxDistance = 70) {
         const distance = this.calculateDistance(teacherLocation, studentLocation);
 
         return {

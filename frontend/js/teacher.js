@@ -277,9 +277,58 @@ async function viewAttendance(classId) {
       `).join('');
         }
 
+        // Clear manual entry input
+        document.getElementById('manual-reg-number').value = '';
         document.getElementById('attendance-modal').classList.remove('hidden');
     } catch (error) {
         showAlert('alert-container', error.message, 'error');
+    }
+}
+
+// Add manual attendance by registration number
+async function addManualAttendance() {
+    const regNumber = document.getElementById('manual-reg-number').value.trim();
+
+    // Validate registration number
+    if (!regNumber) {
+        showAlert('modal-alert', 'Please enter a registration number', 'error');
+        return;
+    }
+
+    if (!/^[0-9]{10}$/.test(regNumber)) {
+        showAlert('modal-alert', 'Invalid registration number. Must be exactly 10 digits.', 'error');
+        return;
+    }
+
+    if (!currentClassId) {
+        showAlert('modal-alert', 'No class selected', 'error');
+        return;
+    }
+
+    try {
+        const result = await apiCall('/attendance/manual', {
+            method: 'POST',
+            body: JSON.stringify({
+                classId: currentClassId,
+                registrationNumber: regNumber
+            })
+        });
+
+        showAlert('modal-alert',
+            `✓ Attendance added successfully for ${result.attendance.studentName} (${result.attendance.registrationNumber})`,
+            'success'
+        );
+
+        // Clear input
+        document.getElementById('manual-reg-number').value = '';
+
+        // Reload attendance list
+        setTimeout(() => {
+            viewAttendance(currentClassId);
+        }, 1000);
+
+    } catch (error) {
+        showAlert('modal-alert', error.message, 'error');
     }
 }
 
@@ -288,6 +337,7 @@ function closeAttendanceModal() {
     document.getElementById('attendance-modal').classList.add('hidden');
     currentClassId = null;
 }
+
 
 // Export to Excel
 document.getElementById('export-btn').addEventListener('click', async () => {

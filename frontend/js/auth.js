@@ -1,5 +1,6 @@
 window.API_URL = 'https://online-attendance-backend.vercel.app/api';
-
+// https://online-attendance-backend.vercel.app/api
+// http://localhost:3000/api
 // Show alert message
 function showAlert(elementId, message, type) {
     const alertDiv = document.getElementById(elementId);

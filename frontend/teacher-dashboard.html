@@ -145,6 +145,25 @@
             <div class="modal-body">
                 <div id="modal-alert"></div>
 
+                <!-- Manual Attendance Input Section -->
+                <div class="card mb-md"
+                    style="background: var(--bg-tertiary); padding: 1rem; border: 1px solid var(--border-color);">
+                    <h3 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: var(--text-primary);">
+                        📝 Teacher's Entry
+                    </h3>
+                    <div class="flex gap-sm">
+                        <input type="text" id="manual-reg-number" class="form-input"
+                            placeholder="Enter registration number." maxlength="10" pattern="[0-9]{10}"
+                            style="flex: 1;">
+                        <button onclick="addManualAttendance()" class="btn btn-success" style="white-space: nowrap;">
+                            Add Attendance
+                        </button>
+                    </div>
+                    <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.5rem; display: block;">
+                        💡 The student must already be registered in the system
+                    </small>
+                </div>
+
                 <div class="flex-between mb-md">
                     <div>
                         <p class="text-secondary" style="margin: 0;">Total Students: <strong
@@ -168,6 +187,7 @@
 
                 <div id="attendance-list"></div>
             </div>
+
         </div>
     </div>
 
@@ -302,7 +322,7 @@
     </div>
 
     <footer class="footer">
-        <p>© 2024 All rights reserved.</p>
+        <p>© 2024 All rights reserved | Tanzim Hasan.</p>
     </footer>
 
     <script src="/js/auth.js"></script>
