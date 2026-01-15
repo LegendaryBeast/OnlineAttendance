@@ -3,6 +3,10 @@ let currentClass = null;
 let studentLocation = null;
 let cameraStream = null;
 let capturedImageData = null;
+let locationWatchId = null;
+let gpsLocation = null;
+let networkLocation = null;
+let isRefreshingLocation = false;
 
 // Check authentication
 const { token, user } = getUserData();
@@ -42,11 +46,46 @@ function showAlert(elementId, message, type) {
     }, 5000);
 }
 
-// Get user's current location
-function getCurrentLocation() {
+// =====================================================
+// DUAL LOCATION SYSTEM - GPS + Network Methods
+// =====================================================
+
+/**
+ * Update the visual status indicators for GPS and Network methods
+ */
+function updateLocationMethodStatus(gpsStatus, networkStatus) {
+    const gpsIndicator = document.getElementById('gps-status');
+    const networkIndicator = document.getElementById('network-status');
+
+    if (gpsIndicator) {
+        gpsIndicator.className = `badge badge-${gpsStatus}`;
+        gpsIndicator.innerHTML = `📡 GPS ${gpsStatus === 'success' ? '✓' : gpsStatus === 'error' ? '✗' : '...'}`;
+    }
+
+    if (networkIndicator) {
+        networkIndicator.className = `badge badge-${networkStatus}`;
+        networkIndicator.innerHTML = `🌐 Network ${networkStatus === 'success' ? '✓' : networkStatus === 'error' ? '✗' : '...'}`;
+    }
+}
+
+/**
+ * Update location accuracy display
+ */
+function updateLocationAccuracy(accuracy, method) {
+    const accuracyEl = document.getElementById('location-accuracy');
+    if (accuracyEl) {
+        accuracyEl.textContent = `Accuracy: ±${accuracy.toFixed(0)}m (via ${method})`;
+    }
+}
+
+/**
+ * Get location using HIGH ACCURACY (GPS) method
+ * This uses GPS hardware directly - more accurate but slower
+ */
+function getGPSLocation() {
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
-            reject(new Error('Geolocation is not supported by your browser'));
+            reject(new Error('Geolocation is not supported'));
             return;
         }
 
@@ -54,19 +93,238 @@ function getCurrentLocation() {
             (position) => {
                 resolve({
                     latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    method: 'GPS',
+                    timestamp: position.timestamp
                 });
             },
             (error) => {
-                reject(new Error('Unable to get location: ' + error.message));
+                reject(new Error('GPS: ' + error.message));
             },
             {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
+                enableHighAccuracy: true,  // Force GPS hardware
+                timeout: 15000,            // Wait up to 15s for GPS
+                maximumAge: 0              // No caching - always get fresh location
             }
         );
     });
+}
+
+/**
+ * Get location using NETWORK method (WiFi, Cell towers, IP)
+ * This is faster but less accurate
+ */
+function getNetworkLocation() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported'));
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    method: 'Network',
+                    timestamp: position.timestamp
+                });
+            },
+            (error) => {
+                reject(new Error('Network: ' + error.message));
+            },
+            {
+                enableHighAccuracy: false,  // Allow network-based location
+                timeout: 8000,              // Faster timeout
+                maximumAge: 0               // No caching
+            }
+        );
+    });
+}
+
+/**
+ * Use watchPosition to continuously track location and get best result
+ * Useful when initial location is cached/stale
+ */
+function watchLocationForBestResult(durationMs = 5000) {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported'));
+            return;
+        }
+
+        let bestLocation = null;
+        let bestAccuracy = Infinity;
+
+        const watchId = navigator.geolocation.watchPosition(
+            (position) => {
+                // Update if this location is more accurate
+                if (position.coords.accuracy < bestAccuracy) {
+                    bestAccuracy = position.coords.accuracy;
+                    bestLocation = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        method: 'Watch',
+                        timestamp: position.timestamp
+                    };
+                }
+            },
+            (error) => {
+                console.warn('Watch position error:', error.message);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: durationMs,
+                maximumAge: 0
+            }
+        );
+
+        // After duration, stop watching and return best result
+        setTimeout(() => {
+            navigator.geolocation.clearWatch(watchId);
+            if (bestLocation) {
+                resolve(bestLocation);
+            } else {
+                reject(new Error('Could not get location via watch'));
+            }
+        }, durationMs);
+    });
+}
+
+/**
+ * Get location using BOTH methods simultaneously
+ * Returns the best (most accurate) result from either method
+ * If one succeeds and other fails, uses the successful one
+ */
+async function getDualMethodLocation() {
+    updateLocationMethodStatus('warning', 'warning');
+
+    gpsLocation = null;
+    networkLocation = null;
+
+    // Run both methods in parallel with their own error handling
+    const gpsPromise = getGPSLocation()
+        .then(loc => {
+            gpsLocation = loc;
+            updateLocationMethodStatus('success', document.getElementById('network-status')?.classList.contains('badge-success') ? 'success' :
+                document.getElementById('network-status')?.classList.contains('badge-error') ? 'error' : 'warning');
+            return loc;
+        })
+        .catch(err => {
+            console.warn('GPS method failed:', err.message);
+            updateLocationMethodStatus('error', document.getElementById('network-status')?.classList.contains('badge-success') ? 'success' :
+                document.getElementById('network-status')?.classList.contains('badge-error') ? 'error' : 'warning');
+            return null;
+        });
+
+    const networkPromise = getNetworkLocation()
+        .then(loc => {
+            networkLocation = loc;
+            updateLocationMethodStatus(document.getElementById('gps-status')?.classList.contains('badge-success') ? 'success' :
+                document.getElementById('gps-status')?.classList.contains('badge-error') ? 'error' : 'warning', 'success');
+            return loc;
+        })
+        .catch(err => {
+            console.warn('Network method failed:', err.message);
+            updateLocationMethodStatus(document.getElementById('gps-status')?.classList.contains('badge-success') ? 'success' :
+                document.getElementById('gps-status')?.classList.contains('badge-error') ? 'error' : 'warning', 'error');
+            return null;
+        });
+
+    // Wait for both to complete (or fail)
+    const results = await Promise.all([gpsPromise, networkPromise]);
+
+    const gpsResult = results[0];
+    const networkResult = results[1];
+
+    // If both failed, try the watch method as fallback
+    if (!gpsResult && !networkResult) {
+        console.log('Both methods failed, trying watch method...');
+        try {
+            const watchResult = await watchLocationForBestResult(5000);
+            if (watchResult) {
+                updateLocationMethodStatus('success', 'success');
+                updateLocationAccuracy(watchResult.accuracy, 'Watch fallback');
+                return watchResult;
+            }
+        } catch (e) {
+            throw new Error('Failed to get location with all methods. Please check location permissions.');
+        }
+    }
+
+    // Use the most accurate result
+    let bestResult = null;
+
+    if (gpsResult && networkResult) {
+        // Both succeeded - use the more accurate one
+        bestResult = gpsResult.accuracy <= networkResult.accuracy ? gpsResult : networkResult;
+    } else if (gpsResult) {
+        bestResult = gpsResult;
+    } else if (networkResult) {
+        bestResult = networkResult;
+    }
+
+    if (bestResult) {
+        updateLocationAccuracy(bestResult.accuracy, bestResult.method);
+        return bestResult;
+    }
+
+    throw new Error('Could not get location from any method');
+}
+
+/**
+ * Refresh location - called when user clicks the refresh button
+ */
+async function refreshLocation() {
+    if (isRefreshingLocation) return;
+
+    isRefreshingLocation = true;
+    const refreshBtn = document.getElementById('refresh-location-btn');
+    const locationInfo = document.getElementById('location-info');
+
+    if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<div class="spinner spinner-small" style="display: inline-block; margin-right: 0.5rem;"></div> Refreshing...';
+    }
+
+    if (locationInfo) {
+        locationInfo.innerHTML = `
+            <div class="flex gap-sm">
+                <div class="spinner spinner-small"></div>
+                <span>Getting fresh location (trying GPS & Network)...</span>
+            </div>
+        `;
+        locationInfo.className = 'alert alert-warning';
+    }
+
+    try {
+        studentLocation = await getDualMethodLocation();
+
+        if (locationInfo) {
+            locationInfo.innerHTML = `✓ Location acquired: ${studentLocation.latitude.toFixed(6)}, ${studentLocation.longitude.toFixed(6)}`;
+            locationInfo.className = 'alert alert-success';
+        }
+    } catch (error) {
+        if (locationInfo) {
+            locationInfo.innerHTML = `⚠ ${error.message}. You must enable location to mark attendance for offline classes.`;
+            locationInfo.className = 'alert alert-error';
+        }
+        studentLocation = null;
+    } finally {
+        isRefreshingLocation = false;
+        if (refreshBtn) {
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '🔄 Refresh Location';
+        }
+    }
+}
+
+// Legacy function for backward compatibility
+function getCurrentLocation() {
+    return getDualMethodLocation();
 }
 
 // Load active classes
@@ -127,12 +385,16 @@ async function openAttendanceModal(classId) {
             document.getElementById('camera-section').classList.remove('hidden');
 
             document.getElementById('location-info').innerHTML = `
-        <div class="flex gap-sm">
-          <div class="spinner spinner-small"></div>
-          <span>Getting your location...</span>
-        </div>
-      `;
+                <div class="flex gap-sm">
+                    <div class="spinner spinner-small"></div>
+                    <span>Getting your location (trying GPS & Network)...</span>
+                </div>
+            `;
             document.getElementById('location-info').className = 'alert alert-warning';
+
+            // Reset location method indicators
+            updateLocationMethodStatus('warning', 'warning');
+            document.getElementById('location-accuracy').textContent = '';
 
             try {
                 studentLocation = await getCurrentLocation();
@@ -259,6 +521,21 @@ function closeAttendanceModal() {
     // Reset variables
     capturedImageData = null;
 
+    // Reset location states
+    gpsLocation = null;
+    networkLocation = null;
+    isRefreshingLocation = false;
+
+    // Reset location UI
+    const accuracyEl = document.getElementById('location-accuracy');
+    if (accuracyEl) accuracyEl.textContent = '';
+
+    const refreshBtn = document.getElementById('refresh-location-btn');
+    if (refreshBtn) {
+        refreshBtn.disabled = false;
+        refreshBtn.innerHTML = '🔄 Refresh Location';
+    }
+
     document.getElementById('attendance-modal').classList.add('hidden');
     currentClass = null;
     studentLocation = null;
@@ -324,6 +601,9 @@ document.getElementById('submit-attendance-btn').addEventListener('click', async
 document.getElementById('start-camera-btn').addEventListener('click', startCamera);
 document.getElementById('capture-photo-btn').addEventListener('click', capturePhoto);
 document.getElementById('retake-photo-btn').addEventListener('click', retakePhoto);
+
+// Location refresh button event listener
+document.getElementById('refresh-location-btn').addEventListener('click', refreshLocation);
 
 // Open history modal
 function openHistoryModal() {
