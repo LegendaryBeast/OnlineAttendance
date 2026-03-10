@@ -27,6 +27,17 @@ class ClassRepository {
     }
 
     /**
+     * Find classes by course ID
+     * @param {string} courseId 
+     * @returns {Promise<Array<Class>>}
+     */
+    async findByCourse(courseId) {
+        return await Class.find({ course: courseId })
+            .sort({ createdAt: 1 })
+            .select('-__v');
+    }
+
+    /**
      * Find class by ID
      * @param {string} classId 
      * @returns {Promise<Class|null>}

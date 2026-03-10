@@ -4,9 +4,11 @@
  * Single Responsibility: Cumulative attendance operations
  */
 class CumulativeAttendanceService {
-    constructor(cumulativeAttendanceRepository, courseRepository) {
+    constructor(cumulativeAttendanceRepository, courseRepository, classRepository, attendanceRepository) {
         this.cumulativeAttendanceRepository = cumulativeAttendanceRepository;
         this.courseRepository = courseRepository;
+        this.classRepository = classRepository;
+        this.attendanceRepository = attendanceRepository;
     }
 
     /**
@@ -50,7 +52,7 @@ class CumulativeAttendanceService {
      * Get cumulative attendance for a course
      * @param {string} courseId 
      * @param {string} teacherId 
-     * @returns {Promise<Array>}
+     * @returns {Promise<Object>}
      */
     async getCumulativeAttendance(courseId, teacherId) {
         // Verify course exists and teacher owns it
@@ -63,10 +65,51 @@ class CumulativeAttendanceService {
             throw new Error('You can only view cumulative attendance for your own courses');
         }
 
-        // Get cumulative attendance records
-        const attendanceRecords = await this.cumulativeAttendanceRepository.findByCourse(courseId);
+        // Get all classes for this course (chronological)
+        const classes = await this.classRepository.findByCourse(courseId);
+        const totalClassesHeld = classes.length;
 
-        return attendanceRecords;
+        // Get cumulative attendance records
+        const baseAttendanceRecords = await this.cumulativeAttendanceRepository.findByCourse(courseId);
+
+        // Enhance records with per-class data and percentages
+        const enhancedRecords = await Promise.all(baseAttendanceRecords.map(async (record) => {
+            const studentId = record.student;
+            const classAttendanceMap = {};
+            let actualAttendanceCount = 0;
+
+            // Check attendance for each class sequentially
+            for (const cls of classes) {
+                const attended = await this.attendanceRepository.findExisting(cls._id, studentId);
+                const isPresent = !!attended;
+
+                if (isPresent) {
+                    actualAttendanceCount++;
+                }
+
+                classAttendanceMap[cls._id.toString()] = {
+                    date: cls.date,
+                    status: isPresent ? '✓' : '✗'
+                };
+            }
+
+            const attendancePercentage = totalClassesHeld > 0
+                ? ((actualAttendanceCount / totalClassesHeld) * 100).toFixed(2) + '%'
+                : '0%';
+
+            return {
+                ...record.toObject(),
+                totalClassesHeld,
+                actualAttendanceCount, // Override just in case of cumulative desync
+                attendancePercentage,
+                classAttendanceMap // Detailed per class mapping
+            };
+        }));
+
+        return {
+            classes,
+            records: enhancedRecords
+        };
     }
 }
 

@@ -14,15 +14,39 @@ async function exportCumulativeToExcel(cumulativeData, courseCode, session) {
 
     const worksheet = workbook.addWorksheet('Cumulative Attendance');
 
-    // Define columns
-    worksheet.columns = [
+    // Expected Data format changes from earlier PR
+    // If it's the old format (array) handle gracefully, else extract classes and records
+    const isNewFormat = !Array.isArray(cumulativeData) && cumulativeData.records && cumulativeData.classes;
+    const records = isNewFormat ? cumulativeData.records : cumulativeData;
+    const classes = isNewFormat ? cumulativeData.classes : [];
+
+    // Define Base columns
+    const columns = [
         { header: 'SL', key: 'sl', width: 8 },
         { header: 'Registration Number', key: 'registrationNumber', width: 25 },
-        { header: 'Name', key: 'studentName', width: 30 },
+        { header: 'Name', key: 'studentName', width: 30 }
+    ];
+
+    // Dynamically add a column for each class held
+    classes.forEach((cls, index) => {
+        // e.g. "Class 1 (10/05)"
+        const dateStr = new Date(cls.date).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' });
+        columns.push({
+            header: `Class ${index + 1}\n(${dateStr})`,
+            key: `class_${cls._id.toString()}`,
+            width: 15
+        });
+    });
+
+    // Add aggregate columns at the end
+    columns.push(
         { header: 'Classes Attended', key: 'attendanceCount', width: 18 },
+        { header: 'Attendance %', key: 'attendancePercent', width: 15 },
         { header: 'First Attendance', key: 'firstAttendance', width: 25 },
         { header: 'Last Attendance', key: 'lastAttendance', width: 25 }
-    ];
+    );
+
+    worksheet.columns = columns;
 
     // Style the header row
     worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -31,21 +55,22 @@ async function exportCumulativeToExcel(cumulativeData, courseCode, session) {
         pattern: 'solid',
         fgColor: { argb: 'FF4472C4' }
     };
-    worksheet.getRow(1).alignment = { horizontal: 'center', vertical: 'middle' };
-    worksheet.getRow(1).height = 25;
+    worksheet.getRow(1).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    worksheet.getRow(1).height = 40; // Taller for class date wrapping
 
     // Sort by registration number
-    const sortedData = [...cumulativeData].sort((a, b) =>
+    const sortedData = [...records].sort((a, b) =>
         a.registrationNumber.localeCompare(b.registrationNumber)
     );
 
     // Add data rows
     sortedData.forEach((record, index) => {
-        worksheet.addRow({
+        const rowData = {
             sl: index + 1,
             registrationNumber: record.registrationNumber,
             studentName: record.studentName,
-            attendanceCount: record.attendanceCount,
+            attendanceCount: record.actualAttendanceCount ?? record.attendanceCount,
+            attendancePercent: record.attendancePercentage || '-',
             firstAttendance: new Date(record.firstAttendanceDate).toLocaleString('en-US', {
                 timeZone: 'Asia/Dhaka',
                 year: 'numeric',
@@ -62,7 +87,31 @@ async function exportCumulativeToExcel(cumulativeData, courseCode, session) {
                 hour: '2-digit',
                 minute: '2-digit'
             })
+        };
+
+        // Populate dynamic class attendance if available
+        if (record.classAttendanceMap) {
+            classes.forEach((cls) => {
+                const mapEntry = record.classAttendanceMap[cls._id.toString()];
+                rowData[`class_${cls._id.toString()}`] = mapEntry ? mapEntry.status : '✗';
+            });
+        }
+
+        const row = worksheet.addRow(rowData);
+
+        // Center align the dynamic checkmark columns and percentage
+        classes.forEach((cls) => {
+            const colIndex = worksheet.getColumn(`class_${cls._id.toString()}`).number;
+            row.getCell(colIndex).alignment = { horizontal: 'center', vertical: 'middle' };
+            const status = rowData[`class_${cls._id.toString()}`];
+            if (status === '✓') {
+                row.getCell(colIndex).font = { color: { argb: 'FF00B050' }, bold: true }; // Green check
+            } else {
+                row.getCell(colIndex).font = { color: { argb: 'FFFF0000' }, bold: true }; // Red cross
+            }
         });
+
+        row.getCell(worksheet.getColumn('attendancePercent').number).alignment = { horizontal: 'center', vertical: 'middle' };
     });
 
     // Add borders to all cells
@@ -90,20 +139,25 @@ async function exportCumulativeToExcel(cumulativeData, courseCode, session) {
     worksheet.insertRow(1, [`Cumulative Attendance Report - ${courseCode}`]);
     worksheet.insertRow(2, [`Session: ${session}`]);
     worksheet.insertRow(3, [`Generated: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })}`]);
-    worksheet.insertRow(4, [`Total Students: ${sortedData.length}`]);
-    worksheet.insertRow(5, []);
+    worksheet.insertRow(4, [`Total Classes Held: ${classes.length}`]);
+    worksheet.insertRow(5, [`Total Students Enrolled: ${sortedData.length}`]);
+    worksheet.insertRow(6, []);
 
     // Style title
     worksheet.getCell('A1').font = { bold: true, size: 16 };
     worksheet.getCell('A2').font = { bold: true, size: 12 };
     worksheet.getCell('A3').font = { italic: true, size: 11, color: { argb: 'FF666666' } };
     worksheet.getCell('A4').font = { bold: true, size: 11 };
+    worksheet.getCell('A5').font = { bold: true, size: 11 };
 
-    // Merge title cells
-    worksheet.mergeCells('A1:F1');
-    worksheet.mergeCells('A2:F2');
-    worksheet.mergeCells('A3:F3');
-    worksheet.mergeCells('A4:F4');
+    // Merge title cells across all dynamic columns
+    const totalCols = columns.length;
+    const mergeEndObj = worksheet.getColumn(totalCols).letter;
+    worksheet.mergeCells(`A1:${mergeEndObj}1`);
+    worksheet.mergeCells(`A2:${mergeEndObj}2`);
+    worksheet.mergeCells(`A3:${mergeEndObj}3`);
+    worksheet.mergeCells(`A4:${mergeEndObj}4`);
+    worksheet.mergeCells(`A5:${mergeEndObj}5`);
 
     // Generate buffer
     const buffer = await workbook.xlsx.writeBuffer();

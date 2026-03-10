@@ -69,7 +69,9 @@ class Container {
         // Initialize cumulative attendance service first
         this.services.cumulativeAttendanceService = new CumulativeAttendanceService(
             this.repositories.cumulativeAttendanceRepository,
-            this.repositories.courseRepository
+            this.repositories.courseRepository,
+            this.repositories.classRepository,
+            this.repositories.attendanceRepository
         );
 
         // Initialize course service
