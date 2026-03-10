@@ -176,7 +176,11 @@ async function loadMyClasses() {
             return;
         }
 
-        container.innerHTML = data.classes.map(cls => `
+        const INITIAL_SHOW = 3;
+        const allClasses = data.classes;
+
+        function renderClassCard(cls) {
+            return `
       <div class="class-card">
         <div class="flex-between mb-sm">
           <h3 style="margin: 0;">${cls.name}</h3>
@@ -193,10 +197,10 @@ async function loadMyClasses() {
         <p class="text-secondary" style="margin: 0.5rem 0;">Validation Code: <strong>${cls.validationCode}</strong></p>
         <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
           Created: ${new Date(cls.date).toLocaleString('en-US', {
-            timeZone: 'Asia/Dhaka',
-            dateStyle: 'medium',
-            timeStyle: 'short'
-        })}
+                timeZone: 'Asia/Dhaka',
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            })}
         </p>
 
         <div class="flex gap-sm" style="flex-wrap: wrap;">
@@ -234,11 +238,46 @@ async function loadMyClasses() {
             Delete
           </button>
         </div>
-      </div>
-    `).join('');
+      </div>`;
+        }
+
+        // Render initial classes (most recent 3)
+        const visibleClasses = allClasses.slice(0, INITIAL_SHOW);
+        const hiddenClasses = allClasses.slice(INITIAL_SHOW);
+
+        let html = visibleClasses.map(cls => renderClassCard(cls)).join('');
+
+        if (hiddenClasses.length > 0) {
+            html += `<div id="hidden-classes" style="display: none;">`;
+            html += hiddenClasses.map(cls => renderClassCard(cls)).join('');
+            html += `</div>`;
+            html += `
+            <button id="show-more-classes-btn" class="btn btn-outline" 
+                style="width: 100%; margin-top: 0.5rem; padding: 0.75rem; font-weight: 600;" 
+                onclick="toggleShowMoreClasses()">
+                Show More (${hiddenClasses.length} more)
+            </button>`;
+        }
+
+        container.innerHTML = html;
     } catch (error) {
         console.error('Load classes error:', error);
         showAlert('alert-container', error.message, 'error');
+    }
+}
+
+// Toggle show more/less classes
+function toggleShowMoreClasses() {
+    const hiddenContainer = document.getElementById('hidden-classes');
+    const btn = document.getElementById('show-more-classes-btn');
+    if (hiddenContainer.style.display === 'none') {
+        hiddenContainer.style.display = 'block';
+        btn.textContent = 'Show Less';
+    } else {
+        hiddenContainer.style.display = 'none';
+        btn.textContent = btn.getAttribute('data-original-text') || 'Show More';
+        // Scroll back to top of classes section
+        document.getElementById('classes-container').scrollIntoView({ behavior: 'smooth' });
     }
 }
 
@@ -688,7 +727,7 @@ document.getElementById('export-cumulative-btn').addEventListener('click', async
 
 // Delete course
 async function deleteCourse(courseId, courseCode) {
-    if (!confirm(`Are you sure you want to delete course "${courseCode}"?\n\nThis will delete all cumulative attendance records for this course. Classes linked to this course will become individual classes. This action cannot be undone.`)) {
+    if (!confirm(`Are you sure you want to delete course "${courseCode}"?\n\nThis will delete all classes, attendance records and cumulative attendance data for this course. This action cannot be undone.`)) {
         return;
     }
 

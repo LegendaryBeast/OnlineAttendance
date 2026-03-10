@@ -4,10 +4,12 @@
  * Single Responsibility: Course operations
  */
 class CourseService {
-    constructor(courseRepository, cumulativeAttendanceRepository, userRepository) {
+    constructor(courseRepository, cumulativeAttendanceRepository, userRepository, classRepository, attendanceRepository) {
         this.courseRepository = courseRepository;
         this.cumulativeAttendanceRepository = cumulativeAttendanceRepository;
         this.userRepository = userRepository;
+        this.classRepository = classRepository;
+        this.attendanceRepository = attendanceRepository;
     }
 
     /**
@@ -94,6 +96,13 @@ class CourseService {
 
         // Delete associated cumulative attendance records
         await this.cumulativeAttendanceRepository.deleteByCourse(courseId);
+
+        // Delete all classes linked to this course and their attendance records
+        const classes = await this.classRepository.findByCourse(courseId);
+        for (const cls of classes) {
+            await this.attendanceRepository.deleteByClass(cls._id);
+            await this.classRepository.delete(cls._id);
+        }
 
         // Delete the course
         await this.courseRepository.delete(courseId);

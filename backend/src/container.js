@@ -78,7 +78,9 @@ class Container {
         this.services.courseService = new CourseService(
             this.repositories.courseRepository,
             this.repositories.cumulativeAttendanceRepository,
-            this.repositories.userRepository
+            this.repositories.userRepository,
+            this.repositories.classRepository,
+            this.repositories.attendanceRepository
         );
 
         this.services.attendanceService = new AttendanceService(
