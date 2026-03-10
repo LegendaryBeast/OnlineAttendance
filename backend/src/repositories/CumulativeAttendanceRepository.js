@@ -68,8 +68,7 @@ class CumulativeAttendanceRepository {
      */
     async findByCourse(courseId) {
         return await CumulativeAttendance.find({ course: courseId })
-            .sort({ registrationNumber: 1 })
-            .select('-__v');
+            .sort({ registrationNumber: 1 });
     }
 
     /**
