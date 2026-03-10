@@ -62,7 +62,7 @@ class CourseController {
      */
     async getCumulativeAttendance(req, res) {
         try {
-            const attendanceRecords = await this.cumulativeAttendanceService.getCumulativeAttendance(
+            const attendanceData = await this.cumulativeAttendanceService.getCumulativeAttendance(
                 req.params.courseId,
                 req.user.userId
             );
@@ -75,8 +75,9 @@ class CourseController {
                     courseName: course.courseName,
                     session: course.session
                 },
-                totalStudents: attendanceRecords.length,
-                attendance: attendanceRecords
+                totalStudents: attendanceData.records.length,
+                attendance: attendanceData.records,
+                classesHeld: attendanceData.classes
             });
         } catch (error) {
             console.error('Get cumulative attendance error:', error);
@@ -90,14 +91,14 @@ class CourseController {
      */
     async downloadCumulativeAttendance(req, res) {
         try {
-            const attendanceRecords = await this.cumulativeAttendanceService.getCumulativeAttendance(
+            const attendanceData = await this.cumulativeAttendanceService.getCumulativeAttendance(
                 req.params.courseId,
                 req.user.userId
             );
 
             const course = await this.courseService.getCourseById(req.params.courseId);
 
-            if (attendanceRecords.length === 0) {
+            if (attendanceData.records.length === 0) {
                 return res.status(404).json({
                     error: 'No cumulative attendance records found for this course'
                 });
@@ -105,7 +106,7 @@ class CourseController {
 
             // Generate Excel file
             const excelBuffer = await exportCumulativeToExcel(
-                attendanceRecords,
+                attendanceData,
                 course.courseCode,
                 course.session
             );
