@@ -41,9 +41,7 @@ async function exportCumulativeToExcel(cumulativeData, courseCode, session) {
     // Add aggregate columns at the end
     columns.push(
         { header: 'Classes Attended', key: 'attendanceCount', width: 18 },
-        { header: 'Attendance %', key: 'attendancePercent', width: 15 },
-        { header: 'First Attendance', key: 'firstAttendance', width: 25 },
-        { header: 'Last Attendance', key: 'lastAttendance', width: 25 }
+        { header: 'Attendance %', key: 'attendancePercent', width: 15 }
     );
 
     worksheet.columns = columns;
@@ -69,24 +67,8 @@ async function exportCumulativeToExcel(cumulativeData, courseCode, session) {
             sl: index + 1,
             registrationNumber: record.registrationNumber,
             studentName: record.studentName,
-            attendanceCount: record.actualAttendanceCount ?? record.attendanceCount,
-            attendancePercent: record.attendancePercentage || '-',
-            firstAttendance: new Date(record.firstAttendanceDate).toLocaleString('en-US', {
-                timeZone: 'Asia/Dhaka',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            }),
-            lastAttendance: new Date(record.lastAttendanceDate).toLocaleString('en-US', {
-                timeZone: 'Asia/Dhaka',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            })
+            attendanceCount: record.attendanceCount,
+            attendancePercent: record.attendancePercentage || '-'
         };
 
         // Populate dynamic class attendance if available

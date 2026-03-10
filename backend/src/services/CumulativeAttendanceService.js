@@ -94,13 +94,12 @@ class CumulativeAttendanceService {
             }
 
             const attendancePercentage = totalClassesHeld > 0
-                ? ((actualAttendanceCount / totalClassesHeld) * 100).toFixed(2) + '%'
+                ? ((record.attendanceCount / totalClassesHeld) * 100).toFixed(2) + '%'
                 : '0%';
 
             return {
                 ...record.toObject(),
                 totalClassesHeld,
-                actualAttendanceCount, // Override just in case of cumulative desync
                 attendancePercentage,
                 classAttendanceMap // Detailed per class mapping
             };
