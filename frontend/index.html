@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - SUST Digital Attendance System</title>
+  <title>Login - SUST Smart Attendance System System</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,56 +14,48 @@
 </head>
 
 <body>
-  <div class="hero-container">
-    <!-- Animated Background Shapes -->
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+  <div class="split-layout">
+    <!-- Left Side: Image -->
+    <div class="split-left">
+      <div class="bg-overlay"></div>
+      <div class="split-left-content">
+        <h2>Smart Attendance System</h2>
+        <p>Effortless Attendance Tracking for Shahjalal University of Science & Technology.</p>
 
-    <!-- Hero Section -->
-    <div class="hero-section">
-      <div class="hero-icon">🎓</div>
-      <h1 class="hero-title">SUST Digital Attendance</h1>
-      <p class="hero-subtitle">Effortless Attendance Tracking for Shahjalal University of Science & Technology.<br>Save
-        time, prevent proxies, and manage records seamlessly.</p>
-    </div>
-
-    <!-- Login Card -->
-    <div class="login-section">
-      <div class="login-card fade-in">
-        <div id="login-alert"></div>
-        <div id="google-btn" style="display: flex; justify-content: center;"></div>
+        <div class="feature-badges">
+          <span class="badge">Easy Attendance</span>
+          <span class="badge">Anti-Proxy System</span>
+        </div>
       </div>
     </div>
 
-    <!-- Feature Badges -->
-    <div class="badges-section">
-      <div class="feature-badge">
-        <span class="badge-icon">📱</span>
-        <span class="badge-text">Easy Attendance</span>
-      </div>
-      <div class="feature-badge">
-        <span class="badge-icon">🚀</span>
-        <span class="badge-text">Time-Saving Process</span>
-      </div>
-      <div class="feature-badge">
-        <span class="badge-icon">🛡️</span>
-        <span class="badge-text">Anti-Proxy System</span>
-      </div>
-      <div class="feature-badge">
-        <span class="badge-icon">📊</span>
-        <span class="badge-text">Easy Export</span>
-      </div>
-      <div class="feature-badge">
-        <span class="badge-icon">🔒</span>
-        <span class="badge-text">Fully Secure System</span>
+    <!-- Right Side: Login -->
+    <div class="split-right">
+      <div class="login-container">
+        <div class="login-header">
+          <div class="logo">
+            <span class="logo-icon">🎓</span>
+            Smart Attendance System
+          </div>
+          <h1 class="welcome-text">Welcome</h1>
+          <p class="instruction-text">Sign in to manage classes and track attendance.</p>
+        </div>
+
+        <div class="login-card fade-in">
+          <div id="login-alert"></div>
+
+          <div class="google-auth-section">
+            <div id="google-btn"></div>
+            <p class="auth-hint">You have to use <strong>Institutional Gmail</strong> for login</p>
+          </div>
+        </div>
+
+        <footer class="login-footer">
+          <p>© 2024 All rights reserved | Tanzim Hasan Prappo.</p>
+        </footer>
       </div>
     </div>
   </div>
-
-  <footer class="footer">
-    <p>© 2024 All rights reserved | Tanzim Hasan Prappo.</p>
-  </footer>
 
   <script src="/js/auth.js"></script>
 </body>
