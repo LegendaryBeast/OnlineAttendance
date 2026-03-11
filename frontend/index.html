@@ -72,17 +72,10 @@
       // Create a timeline for entering the page
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      // 1. Zoom into the background slightly for a dynamic feel
-      gsap.fromTo(".split-left",
-        { backgroundSize: "120%" },
-        { backgroundSize: "100%", duration: 2, ease: "power2.out" }
-      );
-
-      // 2. Reveal left side text and badges staggered
+      // 1. Reveal left side text and badges staggered
       tl.fromTo(".gsap-reveal",
         { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, stagger: 0.2 },
-        0.2 // Start slightly after bg
+        { y: 0, opacity: 1, duration: 0.8, stagger: 0.2 }
       );
 
       // 3. Slide up the login header
