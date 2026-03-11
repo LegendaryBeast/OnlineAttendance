@@ -9,63 +9,74 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/landing.css">
 </head>
 
 <body>
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <div class="logo-icon">🎓</div>
-                <h1>Create Account</h1>
-                <p>Join the SUST Digital Attendance System</p>
-            </div>
+    <div class="hero-container">
+        <!-- Animated Background Shapes -->
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
 
-            <div class="card fade-in">
+        <div class="login-section" style="max-width: 500px;">
+            <div class="login-card fade-in" style="padding: 2.5rem 2rem;">
+                <div class="auth-header" style="margin-bottom: 2rem;">
+                    <div class="logo-icon hero-icon" style="font-size: 3rem; margin-bottom: 0.5rem; filter: none;">🎓
+                    </div>
+                    <h1 class="hero-title" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Create Account</h1>
+                    <p class="hero-subtitle" style="font-size: 1rem;">Join the SUST Digital Attendance System</p>
+                </div>
+
                 <div id="register-alert"></div>
                 <form id="register-form">
-                    <div class="form-group">
-                        <label class="form-label">Full Name</label>
-                        <input type="text" id="register-name" class="form-input" placeholder="Enter your full name"
-                            required>
+                    <div class="form-group" style="text-align: left;">
+                        <label class="form-label" style="color: #e2e8f0;">Full Name</label>
+                        <input type="text" id="register-name" class="form-input"
+                            style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white;"
+                            placeholder="Enter your full name" required>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
+                    <div class="form-group" style="text-align: left;">
+                        <label class="form-label" style="color: #e2e8f0;">Email</label>
                         <input type="email" id="register-email" class="form-input"
+                            style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white;"
                             placeholder="yourname@student.sust.edu" required>
-                        <p class="form-hint">
+                        <p class="form-hint" style="color: rgba(255,255,255,0.5);">
                             Students: use XXXXXXXXXX@student.sust.edu<br>
                             Teachers: use your @sust.edu email
                         </p>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
+                    <div class="form-group" style="text-align: left;">
+                        <label class="form-label" style="color: #e2e8f0;">Password</label>
                         <input type="password" id="register-password" class="form-input"
+                            style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white;"
                             placeholder="Minimum 6 characters" minlength="6" required>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Role</label>
-                        <select id="register-role" class="form-select" required>
-                            <option value="">Select your role</option>
-                            <option value="student">Student</option>
-                            <option value="teacher">Teacher</option>
+                    <div class="form-group" style="text-align: left;">
+                        <label class="form-label" style="color: #e2e8f0;">Role</label>
+                        <select id="register-role" class="form-select"
+                            style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white;"
+                            required>
+                            <option value="" style="color: black;">Select your role</option>
+                            <option value="student" style="color: black;">Student</option>
+                            <option value="teacher" style="color: black;">Teacher</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-success" style="width: 100%;">
+                    <button type="submit" class="btn btn-success"
+                        style="width: 100%; margin-top: 1rem; border-radius: 12px; padding: 0.875rem;">
                         <span id="register-btn-text">Create Account</span>
                         <div id="register-spinner" class="spinner spinner-small hidden"></div>
                     </button>
                 </form>
 
-                <div class="auth-footer">
-                    <p style="margin: 0;">Already have an account? <a href="/">Login here</a></p>
+                <div class="auth-footer"
+                    style="border-top-color: rgba(255,255,255,0.1); margin-top: 2rem; padding-top: 1.5rem;">
+                    <p style="margin: 0; color: #e2e8f0;">Already have an account? <a href="/"
+                            style="color: #4ade80;">Login here</a></p>
                 </div>
             </div>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>© 2024 All rights reserved to Tanzim</p>
-    </footer>
 
     <script src="/js/auth.js"></script>
 </body>
