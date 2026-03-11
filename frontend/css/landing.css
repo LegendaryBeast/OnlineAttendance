@@ -1,4 +1,4 @@
-/* Hero-Style Landing Page - Option 3 */
+/* Enhanced Hero-Style Landing Page (Original Theme) */
 
 /* Main Container */
 .hero-container {
@@ -8,96 +8,145 @@
     align-items: center;
     justify-content: center;
     padding: var(--spacing-lg);
-    background: var(--bg-primary);
+    background: radial-gradient(circle at center 20%, #f0fdf4 0%, var(--bg-primary) 100%);
     gap: var(--spacing-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Optional Background Accent Overlay */
+.hero-container::before {
+    content: '';
+    position: absolute;
+    top: -10vw;
+    right: -10vw;
+    width: 30vw;
+    height: 30vw;
+    background: radial-gradient(circle, rgba(22, 163, 74, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.hero-container::after {
+    content: '';
+    position: absolute;
+    bottom: -15vw;
+    left: -5vw;
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, rgba(22, 163, 74, 0.03) 0%, transparent 60%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+/* Ensure foreground stays above accents */
+.hero-section,
+.login-section,
+.badges-section {
+    position: relative;
+    z-index: 10;
 }
 
 /* Hero Section */
 .hero-section {
     text-align: center;
     max-width: 800px;
-    animation: fadeIn 0.6s ease;
+    animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hero-icon {
-    font-size: 4rem;
+    font-size: 3.5rem;
     margin-bottom: var(--spacing-md);
-    animation: fadeIn 0.4s ease;
+    animation: floatIcon 3s ease-in-out infinite alternate;
+    display: inline-block;
+}
+
+@keyframes floatIcon {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-10px);
+    }
 }
 
 .hero-title {
-    font-size: 2.75rem;
+    font-size: 3rem;
     font-weight: 800;
-    color: var(--primary);
+    color: var(--primary-dark);
     margin-bottom: var(--spacing-sm);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
 }
 
 .hero-subtitle {
-    font-size: 1rem;
+    font-size: 1.1rem;
     color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: 0;
+    max-width: 600px;
+    margin-inline: auto;
 }
 
 /* Login Section */
 .login-section {
     width: 100%;
-    max-width: 450px;
-    animation: fadeIn 0.6s ease 0.2s backwards;
+    max-width: 420px;
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
 }
 
 .login-card {
     background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-xl);
-    padding-bottom: calc(var(--spacing-xl) + 20px);
-    /* Extra padding for Google button */
+    border: 1px solid rgba(22, 163, 74, 0.1);
+    border-radius: 20px;
+    padding: calc(var(--spacing-xl) - 0.5rem) var(--spacing-xl);
     min-height: 140px;
-    /* Ensure enough height for Google button */
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04), 0 4px 10px rgba(22, 163, 74, 0.03);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+/* Tiny green top accent line on the card */
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
+    border-radius: 3px 3px 0 0;
+    opacity: 0.6;
 }
 
 .login-card:hover {
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08), 0 6px 15px rgba(22, 163, 74, 0.06);
+    transform: translateY(-4px);
 }
 
 /* Google button container styling */
 #google-btn {
-    margin-top: var(--spacing-md);
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
+    padding: 0.5rem 0;
 }
-
-/* Ensure Google button fits properly */
-#google-btn>div {
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
-}
-
-#google-btn iframe {
-    margin: 0 auto;
-    display: block;
-}
-
-
 
 /* Feature Badges Section */
 .badges-section {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-sm);
+    gap: 0.85rem;
     justify-content: center;
     align-items: center;
     max-width: 900px;
-    animation: fadeIn 0.6s ease 0.4s backwards;
+    animation: fadeIn 0.8s ease 0.4s backwards;
+    padding-top: var(--spacing-sm);
 }
 
 .feature-badge {
@@ -107,17 +156,18 @@
     padding: 0.625rem 1.25rem;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 50px;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    transition: all 0.25s ease;
     cursor: default;
 }
 
 .feature-badge:hover {
     transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary);
-    background: rgba(22, 163, 74, 0.02);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05), 0 4px 6px rgba(22, 163, 74, 0.05);
+    border-color: var(--primary-light);
+    background: rgba(240, 253, 244, 0.5);
+    /* Faint green tint */
 }
 
 .badge-icon {
@@ -145,35 +195,31 @@
     }
 
     .hero-title {
-        font-size: 2rem;
+        font-size: 2.25rem;
         line-height: 1.2;
     }
 
     .hero-subtitle {
-        font-size: 0.9rem;
-        line-height: 1.5;
+        font-size: 1rem;
+        padding: 0 1rem;
     }
 
     .login-section {
         max-width: 100%;
+        padding: 0 1rem;
     }
 
     .login-card {
         padding: var(--spacing-lg);
-        padding-bottom: calc(var(--spacing-lg) + 20px);
-        /* Extra padding for Google button on mobile */
         min-height: 120px;
-    }
-
-    #google-btn {
-        margin-top: var(--spacing-sm);
     }
 
     .badges-section {
         flex-direction: column;
         width: 100%;
-        max-width: 400px;
+        max-width: 300px;
         gap: 0.75rem;
+        padding: 0 1rem;
     }
 
     .feature-badge {
@@ -181,32 +227,17 @@
         justify-content: center;
         padding: 0.875rem 1.5rem;
     }
-
-    .badge-text {
-        font-size: 0.95rem;
-    }
 }
 
 /* Extra small devices (phones in portrait) */
 @media (max-width: 480px) {
     .hero-title {
-        font-size: 1.75rem;
+        font-size: 1.85rem;
     }
 
     .hero-subtitle {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
-
-    .hero-icon {
-        font-size: 2.5rem;
-    }
-
-    .login-card {
-        padding: var(--spacing-md);
-        padding-bottom: calc(var(--spacing-md) + 20px);
-        min-height: 100px;
-    }
-
 }
 
 /* Tablet optimization */
@@ -224,7 +255,29 @@
 @keyframes fadeIn {
     from {
         opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
         transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
     }
 
     to {
