@@ -83,6 +83,25 @@ body {
     background: var(--bg-primary);
     /* warm cream from theme */
     padding: 2rem;
+    position: relative;
+    /* important for footer absolute positioning */
+}
+
+/* Hide elements initially to prevent FOUC before GSAP loads */
+.gsap-reveal,
+.gsap-slide-up,
+.gsap-scale-up,
+.gsap-fade-in {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Override visibility once GSAP starts */
+.gsap-reveal,
+.gsap-slide-up,
+.gsap-scale-up,
+.gsap-fade-in {
+    visibility: visible;
 }
 
 .login-container {
@@ -124,7 +143,13 @@ body {
     border-radius: var(--border-radius-lg);
     padding: var(--spacing-xl);
     box-shadow: var(--shadow-md);
-    transition: all 0.3s ease;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.login-card:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    /* Float effect */
+    border-color: var(--primary-light);
 }
 
 .google-auth-section {
@@ -151,9 +176,13 @@ body {
     color: var(--error);
 }
 
+/* Footer Positioning */
 .login-footer {
+    position: absolute;
+    bottom: 2rem;
+    left: 0;
+    width: 100%;
     text-align: center;
-    margin-top: 3rem;
     color: var(--text-muted);
     font-size: 0.85rem;
 }

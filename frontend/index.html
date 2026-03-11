@@ -19,10 +19,10 @@
     <div class="split-left">
       <div class="bg-overlay"></div>
       <div class="split-left-content">
-        <h2>Smart Attendance System</h2>
-        <p>Effortless Attendance Tracking for Shahjalal University of Science & Technology.</p>
+        <h2 class="gsap-reveal">Smart Attendance System</h2>
+        <p class="gsap-reveal">Effortless Attendance Tracking for Shahjalal University of Science & Technology.</p>
 
-        <div class="feature-badges">
+        <div class="feature-badges gsap-reveal">
           <span class="badge">Easy Attendance</span>
           <span class="badge">Anti-Proxy System</span>
         </div>
@@ -32,7 +32,9 @@
     <!-- Right Side: Login -->
     <div class="split-right">
       <div class="login-container">
-        <div class="login-header">
+
+        <!-- Animated Header -->
+        <div class="login-header gsap-slide-up">
           <div class="logo">
             <span class="logo-icon">🎓</span>
             Smart Attendance System
@@ -41,7 +43,8 @@
           <p class="instruction-text">Sign in to manage classes and track attendance.</p>
         </div>
 
-        <div class="login-card fade-in">
+        <!-- Animated Card -->
+        <div class="login-card gsap-scale-up">
           <div id="login-alert"></div>
 
           <div class="google-auth-section">
@@ -50,14 +53,60 @@
           </div>
         </div>
 
-        <footer class="login-footer">
-          <p>© 2024 All rights reserved | Tanzim Hasan Prappo.</p>
-        </footer>
       </div>
+
+      <!-- Footer Absolute to Right Pane -->
+      <footer class="login-footer gsap-fade-in">
+        <p>© 2024 All rights reserved | Tanzim Hasan Prappo.</p>
+      </footer>
     </div>
   </div>
 
+  <!-- Scripts -->
   <script src="/js/auth.js"></script>
+
+  <!-- GSAP Animation Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Create a timeline for entering the page
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      // 1. Zoom into the background slightly for a dynamic feel
+      gsap.fromTo(".split-left",
+        { backgroundSize: "120%" },
+        { backgroundSize: "100%", duration: 2, ease: "power2.out" }
+      );
+
+      // 2. Reveal left side text and badges staggered
+      tl.fromTo(".gsap-reveal",
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, stagger: 0.2 },
+        0.2 // Start slightly after bg
+      );
+
+      // 3. Slide up the login header
+      tl.fromTo(".gsap-slide-up",
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8 },
+        "-=0.6" // overlap with the left text animation
+      );
+
+      // 4. Pop in the login card smoothly
+      tl.fromTo(".gsap-scale-up",
+        { scale: 0.95, y: 30, opacity: 0 },
+        { scale: 1, y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.2)" },
+        "-=0.5"
+      );
+
+      // 5. Fade in the footer
+      tl.fromTo(".gsap-fade-in",
+        { opacity: 0 },
+        { opacity: 1, duration: 1 },
+        "-=0.2"
+      );
+    });
+  </script>
 </body>
 
 </html>
