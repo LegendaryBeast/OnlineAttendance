@@ -40,7 +40,7 @@ DigitalAttendence/
 
 ### Prerequisites
 - Node.js (v14+)
-- MongoDB (running instance or Atlas)
+- A Supabase project (database, auth) - see [SUPABASE_SETUP.md](.agent/SUPABASE_SETUP.md)
 
 ### Running the Application
 
@@ -96,15 +96,15 @@ Open browser to: **http://localhost:5500**
 
 ## 🔧 Environment Setup
 
-### Backend (.env in backend/)
+### Backend (.env in backend/, see backend/.env.example)
 ```env
-MONGODB_URI=your_mongodb_uri
-JWT_SECRET=your_secret
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 PORT=3000
 ```
+
+Full setup steps (creating the Supabase project, running the SQL schema, configuring Google sign-in): [.agent/SUPABASE_SETUP.md](.agent/SUPABASE_SETUP.md)
 
 ## 📝 Development
 
@@ -127,10 +127,9 @@ Test the application manually:
 
 ## 🎓 Tech Stack
 
-- **Backend**: Node.js, Express, MongoDB
+- **Backend**: Node.js, Express (hosted on Vercel)
+- **Database & Auth & Storage**: Supabase (Postgres + Supabase Auth + Supabase Storage for photos)
 - **Frontend**: Vanilla JS, HTML5, CSS3
-- **Auth**: JWT
-- **Storage**: Cloudinary (images)
 - **Export**: ExcelJS
 
 ---

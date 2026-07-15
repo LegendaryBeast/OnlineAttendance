@@ -1,19 +1,16 @@
 const Environment = require('./config/environment');
-const DatabaseConfig = require('./config/database');
 const createApp = require('./app');
 
 /**
  * Server Entry Point
- * Initializes database and starts the Express server
+ * Starts the Express server. Supabase is accessed over HTTPS per-request
+ * (see src/config/supabase.js), so there's no persistent DB connection to
+ * open/close like there was with Mongoose.
  */
-async function startServer() {
+function startServer() {
     try {
         // Validate environment variables
         Environment.validate();
-
-        // Connect to database
-        const dbConfig = new DatabaseConfig();
-        await dbConfig.connect();
 
         // Create Express app
         const app = createApp();
@@ -25,20 +22,6 @@ async function startServer() {
             console.log(`📊 Environment: ${Environment.NODE_ENV}`);
             console.log(`✅ Backend ready to accept requests`);
         });
-
-        // Graceful shutdown
-        process.on('SIGTERM', async () => {
-            console.log('SIGTERM signal received: closing HTTP server');
-            await dbConfig.disconnect();
-            process.exit(0);
-        });
-
-        process.on('SIGINT', async () => {
-            console.log('\nSIGINT signal received: closing HTTP server');
-            await dbConfig.disconnect();
-            process.exit(0);
-        });
-
     } catch (error) {
         console.error('Failed to start server:', error);
         process.exit(1);

@@ -1,25 +1,10 @@
 const createApp = require('../src/app');
-const DatabaseConfig = require('../src/config/database');
-const mongoose = require('mongoose');
 
-// Initialize app
+// Initialize app once per serverless instance. Supabase is accessed over
+// HTTPS per-request, so there's no connection pool/state to manage here
+// the way there was with Mongoose.
 const app = createApp();
-const dbConfig = new DatabaseConfig();
 
-module.exports = async (req, res) => {
-    // Handle CORS preflight requests if not handled by app (Express cors middleware usually handles it but good to be safe for serverless)
-    // Actually our app has cors middleware.
-
-    // Connect to database if not already connected
-    if (mongoose.connection.readyState !== 1) {
-        try {
-            await dbConfig.connect();
-        } catch (error) {
-            console.error('Database connection failed:', error);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
-
-    // Forward request to Express app
+module.exports = (req, res) => {
     app(req, res);
 };

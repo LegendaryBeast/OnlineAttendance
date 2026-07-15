@@ -1,33 +1,41 @@
-const CloudinaryConfig = require('../config/cloudinary');
+const crypto = require('crypto');
+const { adminClient } = require('../config/supabase');
+
+const BUCKET = 'attendance-photos';
 
 /**
  * ImageService - Single Responsibility: Image upload and management
- * Wraps Cloudinary operations for better abstraction
+ * Wraps Supabase Storage operations for better abstraction
  */
 class ImageService {
-    constructor(cloudinaryConfig) {
-        this.cloudinaryConfig = cloudinaryConfig || new CloudinaryConfig();
-        this.cloudinary = this.cloudinaryConfig.getCloudinary();
+    constructor(bucket = BUCKET) {
+        this.bucket = bucket;
     }
 
     /**
-     * Upload image to Cloudinary
-     * @param {string} imageData - Base64 encoded image
-     * @param {string} folder - Cloudinary folder path
-     * @returns {Promise<string>} Image URL
+     * Upload image to Supabase Storage
+     * @param {string} imageData - Base64 encoded image (raw or data URI)
+     * @param {string} folder - Storage path prefix
+     * @returns {Promise<string>} Public image URL
      */
     async uploadImage(imageData, folder = 'attendance') {
         try {
-            const result = await this.cloudinary.uploader.upload(imageData, {
-                folder: folder,
-                resource_type: 'image',
-                transformation: [
-                    { width: 800, height: 800, crop: 'limit' },
-                    { quality: 'auto' }
-                ]
-            });
+            const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/.exec(imageData);
+            const contentType = match ? match[1] : 'image/jpeg';
+            const base64Data = match ? match[2] : imageData;
+            const extension = contentType.split('/')[1] || 'jpg';
 
-            return result.secure_url;
+            const buffer = Buffer.from(base64Data, 'base64');
+            const path = `${folder}/${crypto.randomUUID()}.${extension}`;
+
+            const { error } = await adminClient.storage
+                .from(this.bucket)
+                .upload(path, buffer, { contentType, upsert: false });
+
+            if (error) throw error;
+
+            const { data } = adminClient.storage.from(this.bucket).getPublicUrl(path);
+            return data.publicUrl;
         } catch (error) {
             console.error('Image upload error:', error);
             throw new Error('Failed to upload image');
@@ -35,13 +43,15 @@ class ImageService {
     }
 
     /**
-     * Delete image from Cloudinary
-     * @param {string} publicId - Cloudinary public ID
+     * Delete image from Supabase Storage
+     * @param {string} path - Storage object path (as returned by extractStoragePath)
      * @returns {Promise<Object>}
      */
-    async deleteImage(publicId) {
+    async deleteImage(path) {
         try {
-            return await this.cloudinary.uploader.destroy(publicId);
+            const { error } = await adminClient.storage.from(this.bucket).remove([path]);
+            if (error) throw error;
+            return { success: true };
         } catch (error) {
             console.error('Image deletion error:', error);
             throw new Error('Failed to delete image');
@@ -49,14 +59,14 @@ class ImageService {
     }
 
     /**
-     * Extract public ID from Cloudinary URL
-     * @param {string} url 
-     * @returns {string}
+     * Extract the storage object path from a public Supabase Storage URL
+     * @param {string} url
+     * @returns {string|null}
      */
-    extractPublicId(url) {
-        const parts = url.split('/');
-        const filename = parts[parts.length - 1];
-        return filename.split('.')[0];
+    extractStoragePath(url) {
+        const marker = `/object/public/${this.bucket}/`;
+        const idx = url.indexOf(marker);
+        return idx === -1 ? null : url.slice(idx + marker.length);
     }
 }
 

@@ -1,9 +1,10 @@
-const jwt = require('jsonwebtoken');
-const Environment = require('../config/environment');
+const { authClient, adminClient } = require('../config/supabase');
 
 /**
  * AuthService - Business logic for authentication
- * Depends on UserRepository (Dependency Injection)
+ * Identity/credentials are handled by Supabase Auth; app-specific fields
+ * (name, role, registration number) live in the `profiles` table via
+ * UserRepository (Dependency Injection).
  * Single Responsibility: Authentication operations
  */
 class AuthService {
@@ -21,6 +22,7 @@ class AuthService {
 
         // Validate required fields
         this.validateRequiredFields({ email, password, name, role });
+        this.validateSustEmail(email);
 
         // Check if user already exists
         const existingUser = await this.userRepository.findByEmail(email);
@@ -34,28 +36,47 @@ class AuthService {
             registrationNumber = this.extractRegistrationNumber(email);
         }
 
-        // Create user data object
-        const newUserData = {
+        // Create the Supabase Auth user (handles password hashing/storage)
+        const { data: created, error: createError } = await adminClient.auth.admin.createUser({
             email,
             password,
-            name,
-            role
-        };
+            email_confirm: true
+        });
 
-        // Add registration number if student
-        if (registrationNumber) {
-            newUserData.registrationNumber = registrationNumber;
+        if (createError) {
+            throw new Error(createError.message);
         }
 
-        // Create user
-        const user = await this.userRepository.create(newUserData);
+        // Create the app-specific profile row
+        let profile;
+        try {
+            profile = await this.userRepository.create({
+                id: created.user.id,
+                email,
+                name,
+                role,
+                registrationNumber
+            });
+        } catch (error) {
+            // Roll back the auth user if the profile write fails, so we don't
+            // end up with a dangling auth.users row with no profile.
+            await adminClient.auth.admin.deleteUser(created.user.id);
+            throw error;
+        }
 
-        // Generate token
-        const token = this.generateToken(user);
+        // Sign in immediately so registration also logs the user in
+        const { data: signInData, error: signInError } = await authClient.auth.signInWithPassword({
+            email,
+            password
+        });
+
+        if (signInError) {
+            throw new Error(signInError.message);
+        }
 
         return {
-            token,
-            user: this.sanitizeUser(user)
+            token: signInData.session.access_token,
+            user: this.sanitizeUser(profile)
         };
     }
 
@@ -72,61 +93,46 @@ class AuthService {
             throw new Error('Email and password are required');
         }
 
-        // Find user
-        const user = await this.userRepository.findByEmail(email);
-        if (!user) {
+        const { data, error } = await authClient.auth.signInWithPassword({ email, password });
+        if (error) {
             throw new Error('Invalid email or password');
         }
 
-        // Check password
-        const isPasswordValid = await user.comparePassword(password);
-        if (!isPasswordValid) {
+        const profile = await this.userRepository.findById(data.user.id);
+        if (!profile) {
             throw new Error('Invalid email or password');
         }
-
-        // Generate token
-        const token = this.generateToken(user);
 
         return {
-            token,
-            user: this.sanitizeUser(user)
+            token: data.session.access_token,
+            user: this.sanitizeUser(profile)
         };
     }
 
-
-
     /**
-     * Verify Google ID Token
-     * @param {string} token 
-     * @returns {Promise<Object>} Payload
-     */
-    async verifyGoogleToken(token) {
-        const { OAuth2Client } = require('google-auth-library');
-        const client = new OAuth2Client(Environment.GOOGLE_CLIENT_ID);
-
-        try {
-            const ticket = await client.verifyIdToken({
-                idToken: token,
-                audience: Environment.GOOGLE_CLIENT_ID,
-            });
-            return ticket.getPayload();
-        } catch (error) {
-            throw new Error('Invalid Google Token');
-        }
-    }
-
-    /**
-     * Google OAuth Login/Registration
-     * @param {string} token - Google ID Token
+     * Google OAuth Login/Registration via the Google ID token issued to the
+     * frontend's Google Identity Services button. Supabase verifies the
+     * token with Google and creates/links the auth.users record.
+     * @param {string} idToken - Google ID Token
      * @returns {Promise<Object>} { token, user }
      */
-    async googleLogin(token) {
-        // Verify token
-        const payload = await this.verifyGoogleToken(token);
-        const { email, name, sub: googleId, picture } = payload;
+    async googleLogin(idToken) {
+        const { data, error } = await authClient.auth.signInWithIdToken({
+            provider: 'google',
+            token: idToken
+        });
+
+        if (error) {
+            throw new Error('Invalid Google Token');
+        }
+
+        const { user, session } = data;
+        const email = user.email;
 
         // Validate SUST email domain
-        if (!email.endsWith('sust.edu') && email != 'longlong4bugs@gmail.com') {
+        if (!email.endsWith('sust.edu') && email !== 'longlong4bugs@gmail.com') {
+            // Don't leave a dangling auth user for a rejected domain
+            await adminClient.auth.admin.deleteUser(user.id);
             throw new Error('Please use your SUST institutional email address.');
         }
 
@@ -136,7 +142,6 @@ class AuthService {
 
         if (email.endsWith('@student.sust.edu')) {
             role = 'student';
-            // Extract registration number from student email
             const match = email.match(/^([0-9]{10})@student\.sust\.edu$/);
             if (match) {
                 registrationNumber = match[1];
@@ -145,59 +150,35 @@ class AuthService {
             role = 'teacher';
         }
 
-        // Check if user already exists
-        let user = await this.userRepository.findByEmail(email);
+        const googleId = user.user_metadata?.sub || user.user_metadata?.provider_id || null;
+        const picture = user.user_metadata?.picture || user.user_metadata?.avatar_url || null;
+        const name = user.user_metadata?.name || user.user_metadata?.full_name || email;
 
-        if (user) {
-            // Update existing user with Google info if needed
-            if (!user.googleId) {
-                user.googleId = googleId;
-                user.picture = picture;
-                await user.save();
-            }
-        } else {
-            // Create new user
-            const newUserData = {
+        let profile = await this.userRepository.findById(user.id);
+
+        if (!profile) {
+            profile = await this.userRepository.create({
+                id: user.id,
                 email,
                 name,
                 role,
+                registrationNumber,
                 googleId,
-                picture,
-                password: Math.random().toString(36).slice(-12) // Random password for Google users
-            };
-
-            if (registrationNumber) {
-                newUserData.registrationNumber = registrationNumber;
-            }
-
-            user = await this.userRepository.create(newUserData);
+                picture
+            });
+        } else if (!profile.googleId) {
+            profile = await this.userRepository.update(user.id, { googleId, picture });
         }
 
-        // Generate token
-        const tokenJWT = this.generateToken(user);
-
         return {
-            token: tokenJWT,
-            user: this.sanitizeUser(user)
+            token: session.access_token,
+            user: this.sanitizeUser(profile)
         };
     }
 
     /**
-     * Generate JWT token
-     * @param {Object} user 
-     * @returns {string}
-     */
-    generateToken(user) {
-        return jwt.sign(
-            { userId: user._id, role: user.role },
-            Environment.JWT_SECRET,
-            { expiresIn: '7d' }
-        );
-    }
-
-    /**
      * Validate required fields
-     * @param {Object} fields 
+     * @param {Object} fields
      */
     validateRequiredFields(fields) {
         const { email, password, name, role } = fields;
@@ -207,8 +188,22 @@ class AuthService {
     }
 
     /**
+     * Validate SUST email format
+     * @param {string} email
+     */
+    validateSustEmail(email) {
+        const isValid = /^[0-9]{10}@student\.sust\.edu$/.test(email)
+            || /@sust\.edu$/.test(email)
+            || /^longlong4bugs@gmail\.com$/.test(email);
+
+        if (!isValid) {
+            throw new Error('Email must be a valid SUST email address');
+        }
+    }
+
+    /**
      * Extract registration number from student email
-     * @param {string} email 
+     * @param {string} email
      * @returns {string}
      */
     extractRegistrationNumber(email) {
@@ -223,7 +218,7 @@ class AuthService {
 
     /**
      * Remove sensitive data from user object
-     * @param {Object} user 
+     * @param {Object} user
      * @returns {Object}
      */
     sanitizeUser(user) {

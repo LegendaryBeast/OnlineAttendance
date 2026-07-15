@@ -98,7 +98,7 @@ class CumulativeAttendanceService {
                 : '0%';
 
             return {
-                ...record.toObject(),
+                ...record,
                 totalClassesHeld,
                 attendancePercentage,
                 classAttendanceMap // Detailed per class mapping

@@ -1,5 +1,7 @@
 # Google OAuth Configuration Guide
 
+> **Update**: The backend now delegates Google ID token verification to Supabase Auth instead of `google-auth-library`. The frontend flow described below (Google Identity Services button → ID token → `POST /api/auth/google`) is unchanged, but see [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for how the backend now handles that token and what to configure in the Supabase dashboard. The Google Cloud Console settings below (OAuth consent screen, JavaScript origins) still apply as-is.
+
 ## Issues Fixed
 
 1. ✅ **Changed API_URL from `https://localhost:3000` to `http://localhost:3000`**
