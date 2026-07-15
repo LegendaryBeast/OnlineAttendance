@@ -64,16 +64,8 @@ Since this is a split frontend/backend monorepo, we will deploy them as two sepa
 
 ## 💻 Step 3: Configure & Deploy the Frontend to Vercel
 
-### 1. Update the API Endpoint in Code
-The frontend is already configured to automatically use localhost for development and fallback to production when deployed. You only need to update the production fallback URL:
-1. Open [frontend/js/auth.js](frontend/js/auth.js).
-2. Change the production fallback URL (the third line) to your Vercel backend URL (ensure it ends with `/api`):
-   ```javascript
-   window.API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-       ? 'http://localhost:3000/api'
-       : 'https://your-backend-vercel-url.vercel.app/api'; // <--- Update this URL
-   ```
-3. Commit and push this change to your repository.
+### 1. Configure the API Endpoint using Environment Variables
+The frontend is configured to automatically inject your backend URL at build time using Vercel environment variables. You do not need to modify any JavaScript files directly!
 
 ### 2. Deploy Frontend on Vercel
 1. Back on the Vercel Dashboard, click **Add New... → Project**.
@@ -82,9 +74,12 @@ The frontend is already configured to automatically use localhost for developmen
 4. Set the **Root Directory** to `frontend`.
 5. Keep **Framework Preset** as **Other**.
 6. Expand **Build and Output Settings**:
-   * **Build Command**: Leave blank (toggle Override if necessary, but keep it empty since it's standard static HTML/JS/CSS).
+   * **Build Command**: `npm run build` (This runs `build.js` which swaps `http://localhost:3000/api` with your Vercel environment variable).
    * **Output Directory**: `.` (representing the root of the frontend folder which contains `index.html`).
-7. Click **Deploy**.
+7. Expand **Environment Variables** and add:
+   * **Key**: `BACKEND_URL`
+   * **Value**: `https://attendance-api-backend.vercel.app/api` (Make sure it starts with `https://` and ends with `/api`)
+8. Click **Deploy**.
 
 ---
 

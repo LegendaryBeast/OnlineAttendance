@@ -1,7 +1,4 @@
-// Dynamic API URL: Automatically uses localhost for development, and your Vercel URL in production
-window.API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000/api'
-    : 'https://your-backend-vercel-url.vercel.app/api'; // Replace with your actual deployed Vercel backend URL
+window.API_URL = 'http://localhost:3000/api';
 // Show alert message
 function showAlert(elementId, message, type) {
     const alertDiv = document.getElementById(elementId);
