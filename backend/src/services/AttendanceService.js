@@ -229,7 +229,10 @@ class AttendanceService {
 
         return {
             attendanceRecords,
-            className: classData.name
+            className: classData.name,
+            classDate: classData.date,
+            courseCode: classData.course?.courseCode || null,
+            courseName: classData.course?.courseName || null
         };
     }
 

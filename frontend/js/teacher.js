@@ -397,12 +397,19 @@ document.getElementById('export-btn').addEventListener('click', async () => {
             throw new Error(errorData.error || 'Export failed');
         }
 
-        // Get the filename from Content-Disposition header or generate one
+        // Get filename from Content-Disposition header (backend sends a specific name)
         const contentDisposition = response.headers.get('Content-Disposition');
-        let filename = 'attendance.xlsx';
+        let filename;
         if (contentDisposition) {
             const match = contentDisposition.match(/filename="(.+)"/);
-            if (match) filename = match[1];
+            filename = match ? match[1] : null;
+        }
+        // Fallback: build a name from the visible class name in the modal
+        if (!filename) {
+            const className = (document.getElementById('modal-class-name')?.textContent || 'Class')
+                .trim().replace(/[^a-zA-Z0-9]/g, '_');
+            const date = new Date().toISOString().split('T')[0];
+            filename = `Attendance_${className}_${date}.xlsx`;
         }
 
         // Download the file
@@ -680,12 +687,19 @@ async function downloadCumulativeAttendance(courseId) {
             throw new Error(errorData.error || 'Export failed');
         }
 
-        // Get the filename from Content-Disposition header
+        // Get filename from Content-Disposition header (backend sends a specific name)
         const contentDisposition = response.headers.get('Content-Disposition');
-        let filename = 'cumulative_attendance.xlsx';
+        let filename;
         if (contentDisposition) {
             const match = contentDisposition.match(/filename="(.+)"/);
-            if (match) filename = match[1];
+            filename = match ? match[1] : null;
+        }
+        // Fallback: build from the visible course name in the modal
+        if (!filename) {
+            const courseName = (document.getElementById('cumulative-course-name')?.textContent || 'Course')
+                .trim().replace(/[^a-zA-Z0-9]/g, '_');
+            const date = new Date().toISOString().split('T')[0];
+            filename = `Cumulative_Attendance_${courseName}_${date}.xlsx`;
         }
 
         // Download the file

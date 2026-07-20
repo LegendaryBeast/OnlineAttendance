@@ -12,6 +12,8 @@ function toClass(row) {
         teacher: row.teacher_id,
         teacherName: row.teacher_name,
         course: row.course_id,
+        courseCode: row.courses?.course_code || null,
+        courseName: row.courses?.course_name || null,
         teacherLocation: (row.teacher_latitude != null && row.teacher_longitude != null)
             ? { latitude: row.teacher_latitude, longitude: row.teacher_longitude }
             : undefined,
@@ -97,7 +99,7 @@ class ClassRepository {
     async findById(classId) {
         const { data, error } = await adminClient
             .from(TABLE)
-            .select('*')
+            .select('*, courses(course_code, course_name)')
             .eq('id', classId)
             .maybeSingle();
 

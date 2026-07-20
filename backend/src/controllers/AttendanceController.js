@@ -66,20 +66,31 @@ class AttendanceController {
      */
     async exportAttendance(req, res) {
         try {
-            const { attendanceRecords, className } = await this.attendanceService.getAttendanceForExport(
-                req.params.classId,
-                req.user.userId
-            );
+            const { attendanceRecords, className, classDate, courseCode, courseName } =
+                await this.attendanceService.getAttendanceForExport(
+                    req.params.classId,
+                    req.user.userId
+                );
 
             // Generate Excel file
             const excelBuffer = await exportToExcel(attendanceRecords, className);
 
-            // Create filename
-            const date = new Date().toISOString().split('T')[0];
+            // Build a descriptive, specific filename
+            const date = classDate
+                ? new Date(classDate).toISOString().split('T')[0]
+                : new Date().toISOString().split('T')[0];
             const safeClassName = className.replace(/[^a-zA-Z0-9]/g, '_');
-            const filename = `Attendance_${safeClassName}_${date}.xlsx`;
 
-            // Send file
+            let filename;
+            if (courseCode) {
+                const safeCourseCode = courseCode.replace(/[^a-zA-Z0-9]/g, '_');
+                // e.g. CSE_3105_Lec_01_2025-07-20.xlsx
+                filename = `${safeCourseCode}_${safeClassName}_${date}.xlsx`;
+            } else {
+                // No course linked — just class name + date
+                filename = `Attendance_${safeClassName}_${date}.xlsx`;
+            }
+
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
             res.send(excelBuffer);
