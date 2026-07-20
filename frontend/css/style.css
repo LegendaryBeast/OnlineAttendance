@@ -47,9 +47,10 @@
   padding: var(--spacing-md);
   color: var(--text-muted);
   font-size: 0.85rem;
-  margin-top: var(--spacing-xl);
+  margin-top: auto;
   border-top: 1px solid var(--border-color);
   background: var(--bg-secondary);
+  width: 100%;
 }
 
 /* Reset & Base Styles */
@@ -66,6 +67,8 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Typography */
@@ -113,8 +116,10 @@ a:hover {
 /* Container */
 .container {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 0.85rem var(--spacing-lg) var(--spacing-lg);
+  flex: 1;
 }
 
 /* Card Component */
