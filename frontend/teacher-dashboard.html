@@ -40,56 +40,57 @@
             <div class="card-header">
                 <h2>Create New Class</h2>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="padding: 1.25rem 1.5rem;">
                 <form id="create-class-form">
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label class="form-label">Class Details</label>
+                    <div class="grid-2" style="margin-bottom: 0.85rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" style="margin-bottom: 0.35rem;">Class Details</label>
                             <input type="text" id="class-name" class="form-input"
-                                placeholder="Class Course code - Section - Class Number" required>
+                                placeholder="e.g., CSE 4509 - Sec A - Lecture 1" required>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Class Type</label>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" style="margin-bottom: 0.35rem;">Linked Course (Optional)</label>
+                            <select id="class-course" class="form-select">
+                                <option value="">Individual Class (No Course)</option>
+                                <!-- Course options will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="margin-bottom: 1rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" style="margin-bottom: 0.35rem;">Class Type</label>
                             <select id="class-type" class="form-select" required>
                                 <option value="">Select type</option>
                                 <option value="online">Online</option>
                                 <option value="offline">Offline</option>
                             </select>
                         </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" style="margin-bottom: 0.35rem;">Validation Code</label>
+                            <div class="flex gap-sm">
+                                <input type="text" id="validation-code" class="form-input" placeholder="e.g., ABC123"
+                                    required>
+                                <button type="button" onclick="generateRandomCode()" class="btn btn-secondary" style="padding: 0.5rem 0.9rem; white-space: nowrap;">
+                                    Generate
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Linked Course (Optional)</label>
-                        <select id="class-course" class="form-select">
-                            <option value="">Individual Class (No Course)</option>
-                            <!-- Course options will be populated dynamically -->
-                        </select>
-                        <small style="color: var(--text-secondary); font-size: 0.85rem;">
-                            Select a course to track cumulative attendance, or leave as "Individual Class"
+                    <div id="location-section" class="hidden" style="margin-bottom: 0.85rem;">
+                        <div id="location-display"></div>
+                    </div>
+
+                    <div class="flex-between" style="align-items: center; border-top: 1px solid var(--border-color); padding-top: 0.85rem;">
+                        <small style="color: var(--text-secondary); font-size: 0.8rem;">
+                            <i class="ti ti-info-circle"></i> Linking a course enables semester-long cumulative tracking.
                         </small>
+                        <button type="submit" class="btn btn-success" style="padding: 0.55rem 1.6rem; font-weight: 600;">
+                            <span id="create-btn-text"><i class="ti ti-plus" style="margin-right: 0.3rem;"></i> Create Class</span>
+                            <div id="create-spinner" class="spinner spinner-small hidden"></div>
+                        </button>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Validation Code</label>
-                        <div class="flex gap-sm">
-                            <input type="text" id="validation-code" class="form-input" placeholder="e.g., ABC123"
-                                required>
-                            <button type="button" onclick="generateRandomCode()" class="btn btn-secondary">
-                                Generate
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="location-section" class="hidden">
-                        <div class="form-group">
-                            <div id="location-display"></div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-success" style="width: 100%;">
-                        <span id="create-btn-text">Create Class</span>
-                        <div id="create-spinner" class="spinner spinner-small hidden"></div>
-                    </button>
                 </form>
             </div>
         </div>
