@@ -779,23 +779,35 @@ a:hover {
 }
 
 .btn-close {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color-strong);
+  color: var(--text-primary) !important;
+  font-size: 1.35rem !important;
+  font-weight: 700;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.btn-close i,
+.btn-close svg {
+  font-size: 1.35rem !important;
+  color: var(--text-primary) !important;
+  stroke: var(--text-primary) !important;
+  display: block;
 }
 
 .btn-close:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
+  background: #e0ded4;
+  border-color: var(--text-secondary);
+  color: #000 !important;
+  transform: scale(1.05);
 }
 
 /* Camera Capture Styles */
