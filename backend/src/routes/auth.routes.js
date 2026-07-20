@@ -13,9 +13,8 @@ function createAuthRoutes(authController) {
     // Login
     router.post('/login', (req, res) => authController.login(req, res));
 
-    // Google OAuth routes
+    // Google OAuth — receives Supabase access token from frontend after OAuth redirect
     router.post('/google', (req, res) => authController.googleLogin(req, res));
-    router.post('/google/callback', (req, res) => authController.googleCallback(req, res));
 
     return router;
 }

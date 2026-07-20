@@ -47,10 +47,9 @@ class AuthController {
     }
 
     /**
-     * Handle Google OAuth callback
-     */
-    /**
-     * Google Login with ID Token
+     * Google Login with Supabase ID Token
+     * Receives the Supabase access token from the frontend after OAuth redirect
+     * and creates/fetches the user profile.
      */
     async googleLogin(req, res) {
         try {
@@ -72,25 +71,7 @@ class AuthController {
         }
     }
 
-    /**
-     * Google Login Redirect Callback
-     */
-    async googleCallback(req, res) {
-        try {
-            const token = req.body.credential;
-            if (!token) {
-                return res.redirect(`${process.env.FRONTEND_URL || 'https://sust-cse-attendance.vercel.app'}/index.html?error=auth_failed`);
-            }
 
-            const result = await this.authService.googleLogin(token);
-
-            const userJson = encodeURIComponent(JSON.stringify(result.user));
-            res.redirect(`${process.env.FRONTEND_URL || 'https://sust-cse-attendance.vercel.app'}/index.html?token=${result.token}&user=${userJson}`);
-        } catch (error) {
-            console.error('Google callback error:', error);
-            res.redirect(`${process.env.FRONTEND_URL || 'https://sust-cse-attendance.vercel.app'}/index.html?error=auth_failed`);
-        }
-    }
 }
 
 module.exports = AuthController;

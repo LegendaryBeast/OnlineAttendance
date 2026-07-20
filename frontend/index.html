@@ -5,12 +5,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - SUST Smart Attendance System</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/landing.css">
+  <style>
+    .google-signin-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      color: #3c4043;
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .google-signin-btn:hover {
+      background: #f8f9fa;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+  </style>
 </head>
 
 <body>
