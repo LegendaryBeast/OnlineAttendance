@@ -10,7 +10,8 @@ if (!token || !user || user.role !== 'teacher') {
 
 // Display teacher info
 document.getElementById('teacher-name').textContent = user.name;
-document.getElementById('teacher-info').textContent = user.email;
+const infoEl = document.getElementById('teacher-info');
+if (infoEl) infoEl.textContent = user.email;
 
 // API call helper
 async function apiCall(endpoint, options = {}) {

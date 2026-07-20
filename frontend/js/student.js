@@ -13,8 +13,8 @@ if (!token || !user || user.role !== 'student') {
 
 // Display student info
 document.getElementById('student-name').textContent = user.name;
-document.getElementById('student-info').textContent =
-    `Registration: ${user.registrationNumber} | ${user.email}`;
+const infoEl = document.getElementById('student-info');
+if (infoEl) infoEl.textContent = `Reg: ${user.registrationNumber || 'N/A'}`;
 
 // API call helper
 async function apiCall(endpoint, options = {}) {

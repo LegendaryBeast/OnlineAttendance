@@ -114,7 +114,7 @@ a:hover {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-lg);
+  padding: 0.85rem var(--spacing-lg) var(--spacing-lg);
 }
 
 /* Card Component */
@@ -381,8 +381,8 @@ a:hover {
 .header {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
-  padding: var(--spacing-md) 0;
-  margin-bottom: var(--spacing-lg);
+  padding: 0.6rem 0;
+  margin-bottom: 0.85rem;
 }
 
 .header-content {
