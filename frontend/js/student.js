@@ -112,7 +112,7 @@ async function refreshLocation() {
         isRefreshingLocation = false;
         if (refreshBtn) {
             refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '🔄 Refresh Location';
+            refreshBtn.innerHTML = '<i class="ti ti-refresh"></i> Refresh Location';
         }
     }
 }
@@ -312,7 +312,7 @@ function closeAttendanceModal() {
     const refreshBtn = document.getElementById('refresh-location-btn');
     if (refreshBtn) {
         refreshBtn.disabled = false;
-        refreshBtn.innerHTML = '🔄 Refresh Location';
+        refreshBtn.innerHTML = '<i class="ti ti-refresh"></i> Refresh Location';
     }
 
     document.getElementById('attendance-modal').classList.add('hidden');

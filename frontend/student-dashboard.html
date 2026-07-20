@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - SUST Smart Attendance System</title>
+    <title>Student Dashboard - SUST CSE Attendance Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -15,7 +16,7 @@
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="logo">🎓 SUST Smart Attendance System</div>
+            <div class="logo"><i class="ti ti-school"></i> SUST CSE Attendance Portal</div>
             <div class="flex gap-md">
                 <span id="student-name" class="text-secondary"></span>
                 <button onclick="logout()" class="btn btn-outline">Logout</button>
@@ -64,7 +65,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modal-class-name"></h2>
-                <button onclick="closeAttendanceModal()" class="btn-close">×</button>
+                <button onclick="closeAttendanceModal()" class="btn-close" aria-label="Close"><i class="ti ti-x"></i></button>
             </div>
             <div class="modal-body">
                 <div id="modal-alert"></div>
@@ -84,7 +85,7 @@
                         <div style="margin-top: 0.75rem;">
                             <button id="refresh-location-btn" type="button" class="btn btn-secondary"
                                 style="width: 100%;">
-                                🔄 Refresh Location
+                                <i class="ti ti-refresh"></i> Refresh Location
                             </button>
                         </div>
                     </div>
@@ -93,7 +94,7 @@
                 <!-- Camera Capture Section for Offline Classes -->
                 <div id="camera-section" class="hidden">
                     <div class="form-group">
-                        <label class="form-label">📸 Photo Verification Required</label>
+                        <label class="form-label" style="display: flex; align-items: center; gap: 0.4rem;"><i class="ti ti-camera"></i> Photo Verification Required</label>
                         <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
                             Take a selfie to verify your identity during offline class attendance
                         </p>
@@ -123,7 +124,7 @@
 
                         <div id="camera-error" class="hidden alert alert-error" style="margin-top: 1rem;"></div>
                         <div id="camera-success" class="hidden alert alert-success" style="margin-top: 1rem;">
-                            ✓ Photo captured successfully!
+                            Photo captured successfully!
                         </div>
                     </div>
                 </div>
@@ -148,7 +149,7 @@
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
                 <h2>My Attendance History</h2>
-                <button onclick="closeHistoryModal()" class="btn-close">×</button>
+                <button onclick="closeHistoryModal()" class="btn-close" aria-label="Close"><i class="ti ti-x"></i></button>
             </div>
             <div class="modal-body">
                 <div id="history-loading" class="flex-center" style="padding: 2rem;">
@@ -177,7 +178,7 @@
     </div>
 
     <footer class="footer">
-        <p>© 2024 All rights reserved.</p>
+        <p>© 2026 All rights reserved | Tanzim Hasan Prappo.</p>
     </footer>
 
     <script src="/js/auth.js"></script>

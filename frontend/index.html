@@ -4,11 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - SUST Smart Attendance System</title>
+  <title>Sign in - SUST CSE Attendance Portal</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2/dist/tabler-icons.min.css">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/landing.css">
   <style>
@@ -16,41 +17,78 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      background: white;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color-strong);
+      border-radius: var(--border-radius);
       padding: 12px 24px;
       font-size: 14px;
       font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      color: #3c4043;
+      font-weight: 500;
+      color: var(--text-primary);
       cursor: pointer;
       width: 100%;
       justify-content: center;
-      transition: background 0.2s, box-shadow 0.2s;
+      transition: background 0.15s ease;
     }
     .google-signin-btn:hover {
-      background: #f8f9fa;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      background: var(--bg-tertiary);
     }
   </style>
 </head>
 
 <body>
   <div class="split-layout">
-    <!-- Left Side: Image -->
+    <!-- Left Side: Product info -->
     <div class="split-left">
-      <div class="bg-overlay"></div>
-      <div class="split-left-content">
-        <h2 class="gsap-reveal">Smart Attendance System</h2>
-        <p class="gsap-reveal">Effortless Attendance Tracking for Shahjalal University of Science & Technology.</p>
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
 
-        <div class="feature-badges gsap-reveal">
-          <span class="badge">Efficient Attendance</span>
-          <span class="badge">Anti-Proxy and Secure</span>
-          <span class="badge">Quick Export and Manage</span>
+      <div class="split-left-content">
+        <div class="left-mark gsap-reveal">SA</div>
+        <div class="eyebrow-inv gsap-reveal">SUST CSE Attendance Portal</div>
+        <h2 class="gsap-reveal">Attendance that runs itself</h2>
+        <p class="gsap-reveal">Sign in once, mark attendance in seconds. Built for the classroom, not the spreadsheet.</p>
+
+        <div class="feature-list gsap-reveal">
+          <div class="feature-item"><span class="feature-icon"><i class="ti ti-scan"></i></span> One-tap check-in for students</div>
+          <div class="feature-item"><span class="feature-icon"><i class="ti ti-map-pin"></i></span> Location and photo verification</div>
+          <div class="feature-item"><span class="feature-icon"><i class="ti ti-file-export"></i></span> Export reports in one click</div>
+        </div>
+
+        <div class="stats-row gsap-reveal">
+          <div class="stat"><div class="stat-value">12</div><div class="stat-label">Departments</div></div>
+          <div class="stat"><div class="stat-value">1.2k+</div><div class="stat-label">Students</div></div>
+          <div class="stat"><div class="stat-value">40k+</div><div class="stat-label">Check-ins logged</div></div>
+        </div>
+
+        <div class="preview-card gsap-reveal">
+          <div class="preview-card-header">
+            <span class="preview-title">CSE 4509 — Class 12</span>
+            <span class="live-badge"><span class="live-dot"></span> Live</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-avatar">MN</span>
+            <span class="preview-name">Mahin Noor</span>
+            <i class="ti ti-check preview-check"></i>
+            <span class="preview-time">10:04 AM</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-avatar">AR</span>
+            <span class="preview-name">Anika Rahman</span>
+            <i class="ti ti-check preview-check"></i>
+            <span class="preview-time">10:04 AM</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-avatar">SI</span>
+            <span class="preview-name">Sadman Islam</span>
+            <i class="ti ti-check preview-check"></i>
+            <span class="preview-time">10:05 AM</span>
+          </div>
+          <div class="preview-footer"><i class="ti ti-users"></i> 42 students checked in</div>
         </div>
       </div>
+
+      <div class="split-left-footer gsap-fade-in">© 2026 Shahjalal University of Science &amp; Technology, Dept. of CSE.</div>
     </div>
 
     <!-- Right Side: Login -->
@@ -59,7 +97,7 @@
 
         <!-- Animated Header -->
         <div class="login-header gsap-slide-up">
-          <h1 class="welcome-text">Welcome</h1>
+          <h1 class="welcome-text">Welcome back</h1>
           <p class="instruction-text">Sign in to manage classes and track attendance.</p>
         </div>
 
@@ -69,15 +107,16 @@
 
           <div class="google-auth-section">
             <div id="google-btn"></div>
-            <p class="auth-hint">You have to use <strong>Institutional Gmail</strong> for login</p>
+            <p class="auth-hint">Use your <strong>institutional Gmail</strong> to sign in</p>
           </div>
         </div>
 
+        <div class="help-link gsap-fade-in">Trouble signing in? Contact the CSE help desk.</div>
       </div>
 
       <!-- Footer Absolute to Right Pane -->
       <footer class="login-footer gsap-fade-in">
-        <p>© 2024 All rights reserved | Tanzim Hasan Prappo.</p>
+        <p>© 2026 All rights reserved | Tanzim Hasan Prappo.</p>
       </footer>
     </div>
   </div>
@@ -92,30 +131,30 @@
       // Create a timeline for entering the page
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      // 1. Reveal left side text and badges staggered
+      // 1. Reveal left side text, features, stats and preview card staggered
       tl.fromTo(".gsap-reveal",
         { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, stagger: 0.2 }
+        { y: 0, opacity: 1, duration: 0.8, stagger: 0.12 }
       );
 
-      // 3. Slide up the login header
+      // 2. Slide up the login header
       tl.fromTo(".gsap-slide-up",
         { y: 40, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8 },
         "-=0.6" // overlap with the left text animation
       );
 
-      // 4. Pop in the login card smoothly
+      // 3. Pop in the login card smoothly
       tl.fromTo(".gsap-scale-up",
         { scale: 0.95, y: 30, opacity: 0 },
         { scale: 1, y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.2)" },
         "-=0.5"
       );
 
-      // 5. Fade in the footer
+      // 4. Fade in the footers
       tl.fromTo(".gsap-fade-in",
         { opacity: 0 },
-        { opacity: 1, duration: 1 },
+        { opacity: 1, duration: 1, stagger: 0.1 },
         "-=0.2"
       );
     });
