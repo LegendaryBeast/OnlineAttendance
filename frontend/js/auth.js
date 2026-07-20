@@ -50,7 +50,7 @@ async function signInWithGoogle() {
         options: {
             redirectTo: `${window.location.origin}/index.html`,
             queryParams: {
-                hd: 'sust.edu'  // Hint Google to show only sust.edu accounts
+                prompt: 'select_account'  // Show saved Google accounts chooser every time
             }
         }
     });
