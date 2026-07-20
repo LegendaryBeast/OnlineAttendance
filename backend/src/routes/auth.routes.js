@@ -14,8 +14,8 @@ function createAuthRoutes(authController) {
     router.post('/login', (req, res) => authController.login(req, res));
 
     // Google OAuth routes
-    // Google OAuth routes
     router.post('/google', (req, res) => authController.googleLogin(req, res));
+    router.post('/google/callback', (req, res) => authController.googleCallback(req, res));
 
     return router;
 }

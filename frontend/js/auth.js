@@ -155,7 +155,8 @@ window.onload = function () {
     if (googleBtn && window.google) {
         google.accounts.id.initialize({
             client_id: "590867699522-0cobj67nq9m575n9h0enbvje0gs52nch.apps.googleusercontent.com",
-            callback: handleGoogleLoginResponse
+            ux_mode: "redirect",
+            login_uri: `${API_URL}/auth/google/callback`
         });
 
         google.accounts.id.renderButton(
@@ -217,10 +218,36 @@ async function handleGoogleLoginResponse(response) {
 
 // Check if already logged in on page load
 if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-    checkAuth();
+    // Check for tokens and user in redirect URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectToken = urlParams.get('token');
+    const redirectUser = urlParams.get('user');
+
+    if (redirectToken && redirectUser) {
+        try {
+            const user = JSON.parse(decodeURIComponent(redirectUser));
+            saveUserData(redirectToken, user);
+            // Clean URL query parameters
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            showAlert('login-alert', 'Login successful! Redirecting...', 'success');
+            
+            setTimeout(() => {
+                if (user.role === 'student') {
+                    window.location.href = '/student-dashboard.html';
+                } else {
+                    window.location.href = '/teacher-dashboard.html';
+                }
+            }, 1000);
+        } catch (e) {
+            console.error('Failed to parse redirected user data:', e);
+            checkAuth();
+        }
+    } else {
+        checkAuth();
+    }
 
     // Check for OAuth error in URL
-    const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('error') === 'auth_failed') {
         showAlert('login-alert',
             'Google authentication failed. Please use your SUST institutional email.',
