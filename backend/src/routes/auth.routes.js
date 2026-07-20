@@ -15,6 +15,8 @@ function createAuthRoutes(authController) {
 
     // Google OAuth — receives Supabase access token from frontend after OAuth redirect
     router.post('/google', (req, res) => authController.googleLogin(req, res));
+    // Cleans up Supabase auth.users record for non-SUST email rejections
+    router.post('/google/reject', (req, res) => authController.rejectGoogleUser(req, res));
 
     return router;
 }

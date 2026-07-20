@@ -48,7 +48,10 @@ async function signInWithGoogle() {
     const { error } = await client.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: `${window.location.origin}/index.html`
+            redirectTo: `${window.location.origin}/index.html`,
+            queryParams: {
+                hd: 'sust.edu'  // Hint Google to show only sust.edu accounts
+            }
         }
     });
     if (error) {
@@ -73,9 +76,18 @@ async function handleSupabaseCallback() {
 
     // Validate SUST email domain
     if (!email.endsWith('sust.edu') && email !== 'longlong4bugs@gmail.com') {
+        // Sign out from Supabase session
         await client.auth.signOut();
+        // Ask backend to delete the dangling Supabase auth.users record
+        try {
+            await fetch(`${API_URL}/auth/google/reject`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: session.access_token })
+            });
+        } catch { /* best-effort */ }
         window.history.replaceState({}, document.title, window.location.pathname);
-        showAlert('login-alert', 'Please use your SUST institutional email.', 'error');
+        showAlert('login-alert', 'Access denied. Please use your SUST institutional email (@student.sust.edu or @sust.edu).', 'error');
         return true;
     }
 

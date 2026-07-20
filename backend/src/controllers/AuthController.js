@@ -71,6 +71,24 @@ class AuthController {
         }
     }
 
+    /**
+     * Delete a Supabase auth user who used a non-SUST email.
+     * Called by the frontend immediately after detecting a rejected domain,
+     * before signOut(), so we can clean up the dangling auth.users record.
+     */
+    async rejectGoogleUser(req, res) {
+        try {
+            const { token } = req.body;
+            if (!token) return res.status(400).json({ error: 'Token required' });
+
+            await this.authService.rejectNonSustUser(token);
+            res.json({ message: 'User rejected and removed' });
+        } catch (error) {
+            console.error('Reject user error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
 
 }
 

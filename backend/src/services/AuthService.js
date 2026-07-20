@@ -127,9 +127,12 @@ class AuthService {
         const user = data.user;
         const email = user.email;
 
-        // Validate SUST email domain
+        // Validate SUST email domain — hard reject non-institutional emails
         if (!email.endsWith('sust.edu') && email !== 'longlong4bugs@gmail.com') {
-            throw new Error('Please use your SUST institutional email address.');
+            // Delete the dangling Supabase auth.users record so rejected
+            // users cannot reuse the session or pile up in the auth table
+            await adminClient.auth.admin.deleteUser(user.id);
+            throw new Error('Access denied. Please use your SUST institutional email (@student.sust.edu or @sust.edu).');
         }
 
         // Determine role based on email domain
@@ -170,6 +173,17 @@ class AuthService {
             token: accessToken,   // Return the same Supabase token — already valid
             user: this.sanitizeUser(profile)
         };
+    }
+
+    /**
+     * Delete a non-SUST user's Supabase auth record.
+     * Called when the frontend detects a non-institutional email after OAuth.
+     * @param {string} accessToken - Supabase access token of the rejected user
+     */
+    async rejectNonSustUser(accessToken) {
+        const { data, error } = await authClient.auth.getUser(accessToken);
+        if (error || !data.user) return; // already gone or invalid — no-op
+        await adminClient.auth.admin.deleteUser(data.user.id);
     }
 
     /**
