@@ -868,11 +868,10 @@ document.getElementById('update-location-btn').addEventListener('click', async (
 });
 
 
-// ================== INITIALIZATION ==================
-
-// Initialize - load both classes and courses
+// Initialize - load both classes and courses in parallel for speed
 (async function initialize() {
-    await loadTeacherCourses();
-    populateCourseDropdown();
-    loadMyClasses();
+    await Promise.all([
+        loadTeacherCourses().then(populateCourseDropdown),
+        loadMyClasses()
+    ]);
 })();

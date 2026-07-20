@@ -177,7 +177,7 @@ class AttendanceService {
         }
 
         const attendanceRecords = await this.attendanceRepository.findByClass(classId);
-        const totalStudents = await this.attendanceRepository.countByClass(classId);
+        const totalStudents = attendanceRecords.length;
 
         return {
             class: {

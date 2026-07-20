@@ -176,6 +176,26 @@ class AttendanceRepository {
             timestamp: row.timestamp
         }));
     }
+
+    /**
+     * Get all attendance records for multiple classes in one batch query
+     * @param {Array<string>} classIds
+     * @returns {Promise<Array>}
+     */
+    async findByClassIds(classIds) {
+        if (!classIds || classIds.length === 0) return [];
+        const { data, error } = await adminClient
+            .from(TABLE)
+            .select('class_id, student_id, timestamp')
+            .in('class_id', classIds);
+
+        if (error) throw new Error(error.message);
+        return data.map(row => ({
+            classId: row.class_id,
+            studentId: row.student_id,
+            timestamp: row.timestamp
+        }));
+    }
 }
 
 module.exports = AttendanceRepository;

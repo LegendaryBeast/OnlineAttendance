@@ -69,19 +69,27 @@ class CumulativeAttendanceService {
         const classes = await this.classRepository.findByCourse(courseId);
         const totalClassesHeld = classes.length;
 
-        // Get cumulative attendance records
-        const baseAttendanceRecords = await this.cumulativeAttendanceRepository.findByCourse(courseId);
+        // Get cumulative attendance records and all per-class attendance in parallel (2 queries instead of N*M)
+        const classIds = classes.map(c => c._id);
+        const [baseAttendanceRecords, allAttendance] = await Promise.all([
+            this.cumulativeAttendanceRepository.findByCourse(courseId),
+            this.attendanceRepository.findByClassIds(classIds)
+        ]);
 
-        // Enhance records with per-class data and percentages
-        const enhancedRecords = await Promise.all(baseAttendanceRecords.map(async (record) => {
+        // Fast O(1) lookup set: classId_studentId
+        const attendanceSet = new Set(
+            allAttendance.map(a => `${a.classId}_${a.studentId}`)
+        );
+
+        // Enhance records with per-class data and percentages using in-memory lookup
+        const enhancedRecords = baseAttendanceRecords.map((record) => {
             const studentId = record.student;
             const classAttendanceMap = {};
             let actualAttendanceCount = 0;
 
-            // Check attendance for each class sequentially
+            // Check attendance for each class in-memory O(1)
             for (const cls of classes) {
-                const attended = await this.attendanceRepository.findExisting(cls._id, studentId);
-                const isPresent = !!attended;
+                const isPresent = attendanceSet.has(`${cls._id}_${studentId}`);
 
                 if (isPresent) {
                     actualAttendanceCount++;
@@ -103,7 +111,7 @@ class CumulativeAttendanceService {
                 attendancePercentage,
                 classAttendanceMap // Detailed per class mapping
             };
-        }));
+        });
 
         return {
             classes,
