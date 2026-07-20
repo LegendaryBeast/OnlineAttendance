@@ -110,29 +110,25 @@ class AuthService {
     }
 
     /**
-     * Google OAuth Login/Registration via the Google ID token issued to the
-     * frontend's Google Identity Services button. Supabase verifies the
-     * token with Google and creates/links the auth.users record.
-     * @param {string} idToken - Google ID Token
+     * Google OAuth Login/Registration via Supabase OAuth flow.
+     * The frontend completes the OAuth redirect with Supabase and sends
+     * the resulting Supabase access token here for profile creation/lookup.
+     * @param {string} accessToken - Supabase session access_token
      * @returns {Promise<Object>} { token, user }
      */
-    async googleLogin(idToken) {
-        const { data, error } = await authClient.auth.signInWithIdToken({
-            provider: 'google',
-            token: idToken
-        });
+    async googleLogin(accessToken) {
+        // Verify the Supabase access token and get the authenticated user
+        const { data, error } = await authClient.auth.getUser(accessToken);
 
-        if (error) {
-            throw new Error('Invalid Google Token');
+        if (error || !data.user) {
+            throw new Error('Invalid or expired token');
         }
 
-        const { user, session } = data;
+        const user = data.user;
         const email = user.email;
 
         // Validate SUST email domain
         if (!email.endsWith('sust.edu') && email !== 'longlong4bugs@gmail.com') {
-            // Don't leave a dangling auth user for a rejected domain
-            await adminClient.auth.admin.deleteUser(user.id);
             throw new Error('Please use your SUST institutional email address.');
         }
 
@@ -171,7 +167,7 @@ class AuthService {
         }
 
         return {
-            token: session.access_token,
+            token: accessToken,   // Return the same Supabase token — already valid
             user: this.sanitizeUser(profile)
         };
     }
